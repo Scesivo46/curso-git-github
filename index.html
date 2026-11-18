@@ -1,0 +1,1770 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f6fde">
+<title>Curso Git, GitHub y GitLab</title>
+<style>
+:root{
+  --bg:#f7f7f4; --surface:#ffffff; --surface-2:#f0efea; --text:#1d1f23; --muted:#5d6370;
+  --border:#dedcd4; --accent:#2f6fde; --accent-soft:#e6eefc; --ok:#1f8a4c; --ok-soft:#e3f4ea;
+  --warn:#b26a00; --warn-soft:#fdf1dc; --bad:#c23a3a; --bad-soft:#fbe6e6;
+  --gh:#24292f; --gh-soft:#eceef1; --gl:#d4561c; --gl-soft:#fdeee6;
+  --term-bg:#16181d; --term-text:#e6e6e6; --term-dim:#8b919c; --term-cmd:#8fd0ff; --term-add:#7ee2a0; --term-del:#ff8f8f; --term-com:#c9a7ff;
+  --radius:12px; --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 16px rgba(0,0,0,.04);
+  --mono:ui-monospace,"Cascadia Code","Consolas","SFMono-Regular",monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121417; --surface:#1a1d22; --surface-2:#22262c; --text:#e8e9ec; --muted:#9aa1ad;
+    --border:#30353d; --accent:#6ea1ff; --accent-soft:#1d2a42; --ok:#4fcf83; --ok-soft:#173226;
+    --warn:#f0b04a; --warn-soft:#3a2d14; --bad:#ff7b7b; --bad-soft:#3d1c1c; --term-bg:#0c0d10;
+    --gh:#d6dbe1; --gh-soft:#262b32; --gl:#ff8a50; --gl-soft:#3a2418; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121417; --surface:#1a1d22; --surface-2:#22262c; --text:#e8e9ec; --muted:#9aa1ad;
+  --border:#30353d; --accent:#6ea1ff; --accent-soft:#1d2a42; --ok:#4fcf83; --ok-soft:#173226;
+  --warn:#f0b04a; --warn-soft:#3a2d14; --bad:#ff7b7b; --bad-soft:#3d1c1c; --term-bg:#0c0d10;
+  --gh:#d6dbe1; --gh-soft:#262b32; --gl:#ff8a50; --gl-soft:#3a2418; --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.9em;background:var(--surface-2);border:1px solid var(--border);padding:.05em .35em;border-radius:5px;overflow-wrap:anywhere}
+.layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}
+aside{position:sticky;top:0;height:100vh;overflow:auto;background:var(--surface);border-right:1px solid var(--border);padding:22px 16px;z-index:40}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem;margin-bottom:4px}
+.brand svg{flex:none}
+.sub{color:var(--muted);font-size:.85rem;margin:0 0 16px}
+.progress{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.progress>div{height:100%;width:0;background:var(--ok);transition:width .4s}
+.progress-label{font-size:.8rem;color:var(--muted);margin:6px 0 14px}
+.plat{margin:0 0 16px}
+.plat .lbl2{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:6px;display:block}
+.seg{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;color:var(--text);font:inherit;font-size:.82rem;padding:7px 4px;border-radius:7px;cursor:pointer;min-height:36px}
+.seg button.on{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.15);font-weight:600}
+.seg button[data-p="gh"].on{color:var(--gh)}.seg button[data-p="gl"].on{color:var(--gl)}
+nav ol{list-style:none;margin:0;padding:0}
+nav li a{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;color:var(--text);text-decoration:none;font-size:.93rem;min-height:42px}
+nav li a:hover{background:var(--surface-2)}
+nav li a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav .num{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+nav a.done .num{background:var(--ok);border-color:var(--ok);color:#fff}
+.theme-btn{margin-top:18px;width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;cursor:pointer;font:inherit;font-size:.85rem}
+.topbar,.scrim{display:none}
+main{padding:40px clamp(16px,5vw,64px) 80px;max-width:1040px;min-width:0}
+section.mod h1{font-size:clamp(1.5rem,3.5vw,2.2rem);line-height:1.2;margin:.2em 0 .4em}
+section.mod h2{font-size:1.3rem;margin:2em 0 .5em;padding-top:.4em;border-top:1px solid var(--border)}
+section.mod h3{font-size:1.05rem;margin:1.6em 0 .4em}
+.kicker{text-transform:uppercase;letter-spacing:.08em;font-size:.75rem;font-weight:700;color:var(--accent)}
+.lead{font-size:1.1rem;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin:16px 0}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.grid .card{margin:0}
+.card h4{margin:0 0 6px;font-size:1rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+.note{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 10px 10px 0;margin:16px 0}
+.note.tip{border-color:var(--ok);background:var(--ok-soft)}
+.note.warn{border-color:var(--warn);background:var(--warn-soft)}
+.note strong:first-child{display:block;margin-bottom:2px}
+.steps{list-style:none;padding:0;counter-reset:s}
+.steps>li{counter-increment:s;position:relative;padding:0 0 14px 44px}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.steps ul{padding-left:20px}
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin:12px 0;background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface-2);font-weight:600}
+tr:last-child td{border-bottom:0}
+.table-wrap{overflow-x:auto}
+/* Platform variants */
+.dual{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));margin:16px 0;align-items:start}
+.v{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);overflow:hidden;min-width:0}
+.vh{display:flex;align-items:center;gap:8px;padding:8px 14px;font-weight:700;font-size:.85rem;letter-spacing:.02em}
+.vh::before{content:"";width:10px;height:10px;border-radius:50%;background:currentColor}
+.v.only-gh{border-top:3px solid var(--gh)}.v.only-gh .vh{color:var(--gh);background:var(--gh-soft)}
+.v.only-gl{border-top:3px solid var(--gl)}.v.only-gl .vh{color:var(--gl);background:var(--gl-soft)}
+.vb{padding:4px 16px 12px}
+.vb>p:first-child{margin-top:8px}
+.vb .steps{margin:10px 0 0}
+.vb .termbox{margin:10px 0}
+.ptag{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:99px;vertical-align:middle;white-space:nowrap}
+.ptag.gh{background:var(--gh-soft);color:var(--gh)}.ptag.gl{background:var(--gl-soft);color:var(--gl)}
+:root[data-plat="gh"] .only-gl,:root[data-plat="gl"] .only-gh{display:none!important}
+/* Terminal blocks */
+.termbox{background:var(--term-bg);border-radius:var(--radius);margin:16px 0;overflow:hidden;border:1px solid #000;max-width:100%}
+.termbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.06);color:var(--term-dim);font-size:.78rem}
+.dots{display:flex;gap:6px;flex:none}.dots i{width:10px;height:10px;border-radius:50%;background:#ff5f57}.dots i:nth-child(2){background:#febc2e}.dots i:nth-child(3){background:#28c840}
+.termbar .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copy{flex:none;background:rgba(255,255,255,.1);color:var(--term-text);border:0;border-radius:6px;padding:5px 12px;font:inherit;font-size:.75rem;cursor:pointer}
+.copy:hover{background:rgba(255,255,255,.2)}
+.termbox pre{margin:0;padding:14px 16px;color:var(--term-text);font:14px/1.55 var(--mono);overflow-x:auto;white-space:pre;-webkit-overflow-scrolling:touch}
+.ln.cmd{color:var(--term-cmd)}.ln .pr{color:var(--term-add)}
+.ln.out{color:var(--term-dim)}.ln.com{color:var(--term-com);font-style:italic}
+/* Diagrams */
+.zones{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:18px 0}
+.zone{flex:1 1 150px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.zone b{display:block;margin-bottom:4px}
+.zone small{color:var(--muted);display:block;line-height:1.4}
+.zone.z1{border-color:var(--warn)}.zone.z2{border-color:var(--accent)}.zone.z3{border-color:var(--ok)}.zone.z4{border-color:var(--muted);border-style:dashed}
+.arrow{flex:0 0 auto;align-self:center;font-family:var(--mono);font-size:.8rem;color:var(--muted);text-align:center;line-height:1.2}
+.arrow span{display:block;font-size:1.3rem}
+svg.diagram{width:100%;height:auto;max-width:720px;display:block;margin:12px auto}
+svg.diagram text{font-family:var(--sans);fill:var(--text);font-size:13px}
+svg.diagram .muted{fill:var(--muted);font-size:12px}
+/* Quiz */
+.quiz{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin:18px 0}
+.quiz .q{font-weight:600;margin:0 0 10px}
+.quiz .q::before{content:"❓ "}
+.quiz button.opt{display:block;width:100%;text-align:left;margin:6px 0;padding:12px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font:inherit;cursor:pointer;min-height:44px}
+.quiz button.opt:hover:not(:disabled){border-color:var(--accent)}
+.quiz button.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.quiz button.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.quiz .fb{margin:10px 0 0;font-size:.93rem;color:var(--muted)}
+/* Module nav */
+.modnav{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:48px;padding-top:20px;border-top:1px solid var(--border)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-size:.93rem;cursor:pointer;text-decoration:none;min-height:44px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+/* Simulator */
+.sim{display:grid;gap:14px;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.simterm{background:var(--term-bg);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;min-height:440px;border:1px solid #000;min-width:0}
+#sim-out{flex:1;overflow:auto;padding:12px 14px;font:13.5px/1.5 var(--mono);color:var(--term-text);white-space:pre-wrap;word-break:break-word;max-height:470px}
+#sim-out .cmd{color:var(--term-cmd)}#sim-out .dim{color:var(--term-dim)}#sim-out .err{color:var(--term-del)}#sim-out .add{color:var(--term-add)}#sim-out .del{color:var(--term-del)}#sim-out .hint{color:var(--term-com)}#sim-out .yel{color:#f5d76e}
+.siminput{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.08);font:13.5px var(--mono)}
+.siminput label{color:var(--term-add);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+.siminput input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;font:inherit}
+.siminput .run{display:none;flex:none;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 12px;font:600 .85rem var(--sans)}
+.simstate{display:grid;gap:10px;min-width:0}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:.88rem;min-width:0}
+.box h5{margin:0 0 6px;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+.box ul{list-style:none;margin:0;padding:0}
+.box li{display:flex;gap:8px;align-items:center;padding:2px 0;font-family:var(--mono);font-size:.82rem;flex-wrap:wrap}
+.box .empty{color:var(--muted);font-style:italic;font-family:var(--sans)}
+.badge{display:inline-block;min-width:22px;text-align:center;font-size:.7rem;font-weight:700;border-radius:5px;padding:1px 5px;font-family:var(--sans)}
+.b-u{background:var(--warn-soft);color:var(--warn)}.b-m{background:var(--accent-soft);color:var(--accent)}.b-ok{background:var(--ok-soft);color:var(--ok)}.b-x{background:var(--bad-soft);color:var(--bad)}
+.tag{font-size:.7rem;font-family:var(--sans);font-weight:600;padding:1px 6px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.tag.head{background:var(--ok-soft);color:var(--ok)}.tag.remote{background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+.missions{list-style:none;padding:0;margin:0}
+.missions li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.93rem;align-items:flex-start}
+.missions li:last-child{border:0}
+.missions .chk{flex:none;width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:grid;place-items:center;font-size:.8rem;color:#fff;margin-top:2px}
+.missions li.ok .chk{background:var(--ok);border-color:var(--ok)}
+.missions li.ok .mt{color:var(--muted)}
+.missions li.ok .mtx{text-decoration:line-through}
+.mt{min-width:0}
+.chip{cursor:pointer;border:1px dashed var(--accent);display:inline-block;margin:3px 2px 0 0;padding:2px 7px}
+.chip:hover{background:var(--accent-soft)}
+.simtools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.simtools .btn{padding:8px 12px;font-size:.85rem}
+.hero{background:linear-gradient(135deg,var(--accent-soft),var(--surface));border:1px solid var(--border);border-radius:16px;padding:26px 26px 20px;margin-bottom:20px}
+.pill{display:inline-block;font-size:.8rem;padding:3px 10px;border-radius:99px;background:var(--surface);border:1px solid var(--border);margin:4px 4px 0 0;color:var(--muted)}
+kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:var(--surface)}
+
+@media (max-width:980px){.sim{grid-template-columns:1fr}.simstate{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}}
+
+/* ---------- Mobile ---------- */
+@media (max-width:820px){
+  .layout{display:block}
+  .topbar{display:flex;position:sticky;top:0;z-index:30;align-items:center;gap:10px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));background:var(--surface);border-bottom:1px solid var(--border)}
+  .topbar .menu{flex:none;width:44px;height:44px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-size:1.3rem;cursor:pointer}
+  .topbar .tt{flex:1;min-width:0}
+  .topbar .tt b{display:block;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar .tt small{color:var(--muted);font-size:.75rem}
+  .topbar .mini{position:absolute;left:0;right:0;bottom:-1px;height:3px;background:transparent}
+  .topbar .mini>div{height:100%;width:0;background:var(--ok);transition:width .4s}
+  aside{position:fixed;top:0;left:0;bottom:0;height:100%;width:min(86vw,320px);transform:translateX(-102%);transition:transform .25s ease;box-shadow:4px 0 24px rgba(0,0,0,.25);padding-top:max(22px,env(safe-area-inset-top))}
+  body.nav-open aside{transform:none}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:35;opacity:0;pointer-events:none;transition:opacity .25s}
+  body.nav-open .scrim{opacity:1;pointer-events:auto}
+  body.nav-open{overflow:hidden}
+  main{padding:20px 16px 60px;max-width:none}
+  .hero{padding:20px 16px 16px}
+  section.mod h2{font-size:1.18rem}
+  .lead{font-size:1.02rem}
+  .card{padding:14px 16px}
+  .quiz{padding:16px}
+  .zones{flex-direction:column}
+  .zone{flex:none}
+  .arrow{display:flex;gap:8px;align-items:center;justify-content:center}
+  .arrow span{transform:rotate(90deg);display:inline-block}
+  .modnav{flex-direction:column-reverse}
+  .modnav>*{width:100%}
+  .modnav>span:empty{display:none}
+  .termbox pre{font-size:12.5px;padding:12px}
+  .termbox{border-radius:10px}
+  .steps>li{padding-left:40px}
+  .vb{padding:2px 12px 10px}
+}
+@media (max-width:640px){
+  table,tbody,tr,td,th{display:block;width:100%}
+  table{border-radius:10px}
+  tr{border-bottom:1px solid var(--border);padding:8px 0}
+  tr:last-child{border-bottom:0}
+  tr.hd{display:none}
+  tr.sec th{padding:8px 12px}
+  td{border:0;padding:3px 12px}
+  td[data-label]::before{content:attr(data-label);display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .table-wrap{overflow:visible}
+  #sim-out{max-height:330px;font-size:12.5px}
+  .simterm{min-height:0}
+  #sim-out{min-height:260px}
+  .siminput{font-size:16px;padding:8px 10px}
+  .siminput label{display:none}
+  .siminput .run{display:block}
+  .simtools .btn{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="menu" id="menuBtn" aria-label="Abrir índice del curso" aria-expanded="false">☰</button>
+  <div class="tt"><b id="tbTitle">Git, GitHub y GitLab</b><small id="tbProg">0 de 11 completados</small></div>
+  <div class="mini"><div id="tbBar"></div></div>
+</header>
+<div class="scrim" id="scrim"></div>
+<div class="layout">
+<aside id="aside">
+  <div class="brand">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="9" r="2.2"/><path d="M6 7.2v9.6M18 11.2c0 4-6 3-11 6"/></svg>
+    Git, GitHub y GitLab
+  </div>
+  <p class="sub">Curso básico para principiantes</p>
+  <div class="progress"><div id="pbar"></div></div>
+  <div class="progress-label" id="plabel">0 de 11 módulos completados</div>
+  <div class="plat">
+    <span class="lbl2">Mostrar instrucciones de</span>
+    <div class="seg" id="platSeg">
+      <button data-p="both">Ambas</button><button data-p="gh">GitHub</button><button data-p="gl">GitLab</button>
+    </div>
+  </div>
+  <nav><ol id="nav"></ol></nav>
+  <button class="theme-btn" id="themeBtn">🌓 Cambiar tema claro/oscuro</button>
+</aside>
+
+<main>
+
+<!-- ============ 1 ============ -->
+<section class="mod" id="inicio" data-title="Bienvenida: ¿qué es Git?">
+  <div class="hero">
+    <div class="kicker">Módulo 1</div>
+    <h1>Bienvenida: ¿qué es Git y para qué sirven GitHub y GitLab?</h1>
+    <p class="lead">Al terminar este curso sabrás crear repositorios, guardar versiones de tu trabajo, usar ramas, subir tus proyectos a GitHub o GitLab y colaborar con otras personas.</p>
+    <span class="pill">⏱ 3–4 horas</span><span class="pill">🧪 Simulador incluido</span><span class="pill">💻 Pensado para Windows</span><span class="pill">📱 Se puede leer en el móvil</span><span class="pill">🎯 Nivel: cero absoluto</span>
+  </div>
+
+  <h2>El problema que resuelve Git</h2>
+  <p>Seguro que alguna vez has tenido una carpeta así:</p>
+  <pre class="term file" data-title="Mi carpeta de trabajo (antes de Git)">
+trabajo_final.docx
+trabajo_final_v2.docx
+trabajo_final_v2_corregido.docx
+trabajo_final_DEFINITIVO.docx
+trabajo_final_DEFINITIVO_ahora_si.docx
+</pre>
+  <p>Esto es <strong>control de versiones manual</strong>: copias y copias de un mismo archivo para no perder nada. Funciona... hasta que no sabes qué cambiaste en cada copia, o dos personas editan a la vez.</p>
+  <p><strong>Git</strong> es un programa que hace esto por ti de forma ordenada: guarda "fotos" (llamadas <em>commits</em>) de tu proyecto cada vez que tú se lo pides, con un mensaje que explica qué cambiaste, quién y cuándo. Puedes volver a cualquier foto anterior cuando quieras.</p>
+
+  <h2>Git, GitHub y GitLab: tres cosas distintas</h2>
+  <div class="grid">
+    <div class="card"><h4>🛠 Git</h4><p>Un <strong>programa</strong> que instalas en tu ordenador. Funciona sin internet. Lleva el historial de versiones de tus carpetas. Es el mismo para todo el mundo.</p></div>
+    <div class="card"><h4><span class="ptag gh">GitHub</span></h4><p>Una <strong>web</strong> (github.com, de Microsoft) donde subes tus repositorios de Git. Es la más popular: ahí está casi todo el software libre.</p></div>
+    <div class="card"><h4><span class="ptag gl">GitLab</span></h4><p>Otra <strong>web</strong> (gitlab.com) que hace lo mismo. Muy usada en empresas porque además puede instalarse en servidores propios.</p></div>
+  </div>
+  <div class="note"><strong>Analogía rápida</strong>Git es la cámara de fotos. GitHub y GitLab son dos álbumes online distintos donde puedes subir esas fotos para compartirlas y no perderlas. La cámara funciona igual suba las fotos a uno o a otro.</div>
+
+  <h2>Cómo leer este curso</h2>
+  <p>Todo lo que se hace con Git en la terminal es <strong>idéntico</strong> para las dos plataformas. Solo cambian la web y algunos nombres. Cada vez que un paso sea distinto verás las dos variantes, una junto a otra (o una debajo de otra en el móvil):</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb"><p>Instrucciones para GitHub.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb"><p>Instrucciones para GitLab.</p></div></div>
+  </div>
+  <div class="note tip"><strong>💡 ¿Solo te interesa una?</strong>En el menú (<span aria-hidden="true">☰</span> en el móvil) tienes el selector <em>"Mostrar instrucciones de"</em>: elige GitHub, GitLab o ambas. El curso se adapta al instante.</div>
+
+  <h2>¿Para qué sirve en la vida real?</h2>
+  <div class="grid">
+    <div class="card"><h4>⏪ Viajar en el tiempo</h4><p>¿Rompiste algo? Vuelve a la versión de ayer en segundos.</p></div>
+    <div class="card"><h4>🧪 Experimentar sin miedo</h4><p>Prueba ideas en una "rama" aparte sin tocar la versión buena.</p></div>
+    <div class="card"><h4>👥 Trabajar en equipo</h4><p>Varias personas en el mismo proyecto sin pisarse.</p></div>
+    <div class="card"><h4>🌍 Publicar</h4><p>Comparte código, documentación o incluso una web gratis (GitHub Pages o GitLab Pages).</p></div>
+  </div>
+  <p>Aunque se asocia a programadores, Git sirve para cualquier proyecto basado en <strong>archivos de texto</strong>: código, webs, documentación en Markdown, guiones, scripts de automatización, configuraciones…</p>
+  <div class="note warn"><strong>⚠️ Ojo con los archivos grandes</strong>Git no está pensado para vídeos, audios o archivos binarios pesados (proyectos de Premiere, .mp4, .psd…). GitHub rechaza archivos de más de 100&nbsp;MB y GitLab.com limita el tamaño total del repositorio en el plan gratuito. Para eso existe la extensión Git LFS. Usa Git para el código, scripts y documentos de texto de tus proyectos.</div>
+
+  <h2>Vocabulario mínimo para empezar</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Palabra</th><th>Qué significa</th></tr>
+    <tr><td><strong>Repositorio</strong> (repo)</td><td>Una carpeta cuyo historial controla Git. En GitLab también se le llama <strong>proyecto</strong>.</td></tr>
+    <tr><td><strong>Commit</strong></td><td>Una "foto" guardada del proyecto, con un mensaje.</td></tr>
+    <tr><td><strong>Rama</strong> (branch)</td><td>Una línea de trabajo paralela.</td></tr>
+    <tr><td><strong>Remoto</strong></td><td>Una copia del repositorio en otro sitio (GitHub, GitLab…).</td></tr>
+    <tr><td><strong>Push / Pull</strong></td><td>Subir cambios al remoto / Traer cambios del remoto.</td></tr>
+  </table></div>
+
+  <div class="quiz" data-answer="1" data-explain="Git es el programa local que guarda versiones; GitHub y GitLab son servicios web donde alojar esos repositorios. Los comandos de Git son los mismos para ambos.">
+    <p class="q">¿Cuál de estas frases es correcta?</p>
+    <button class="opt">GitHub y GitLab usan versiones distintas de Git con comandos diferentes.</button>
+    <button class="opt">Git es un programa que guarda versiones; GitHub y GitLab son webs para alojar repositorios Git.</button>
+    <button class="opt">Git solo funciona si tienes cuenta en GitHub.</button>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="mod" id="instalar" data-title="Instalación y configuración">
+  <div class="kicker">Módulo 2</div>
+  <h1>Instalación y configuración</h1>
+  <p class="lead">Dejamos tu ordenador listo en 10 minutos. Solo se hace una vez y vale para GitHub y GitLab.</p>
+
+  <h2>1. Instalar Git en Windows</h2>
+  <ol class="steps">
+    <li>Ve a <a href="https://git-scm.com/downloads" target="_blank" rel="noopener">git-scm.com/downloads</a> y descarga la versión para Windows.</li>
+    <li>Ejecuta el instalador. Puedes dejar <strong>todas las opciones por defecto</strong>. Solo dos recomendaciones:
+      <ul>
+        <li>En "Choosing the default editor", elige <strong>Visual Studio Code</strong> o <strong>Notepad</strong> (por defecto viene Vim, que es difícil para empezar).</li>
+        <li>En "Adjusting the name of the initial branch", elige <strong>Override… → main</strong>.</li>
+      </ul>
+    </li>
+    <li>Al terminar tendrás un programa nuevo: <strong>Git Bash</strong>, una terminal preparada para Git. También puedes usar PowerShell o la terminal de VS Code.</li>
+  </ol>
+  <p>Comprueba que está instalado abriendo Git Bash (o PowerShell) y escribiendo:</p>
+  <pre class="term" data-title="Git Bash">
+$ git --version
+git version 2.47.1.windows.1
+</pre>
+  <div class="note tip"><strong>💡 ¿Qué es una terminal?</strong>Una ventana donde das órdenes al ordenador escribiendo en vez de con clics. En este curso, las líneas que empiezan por <code>$</code> son órdenes que escribes tú (sin escribir el <code>$</code>). El resto de líneas es lo que responde el ordenador. Usa el botón <em>Copiar</em> de cada bloque.</div>
+
+  <h3>Comandos básicos de terminal que vas a necesitar</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Comando</th><th>Qué hace</th><th>Ejemplo</th></tr>
+    <tr><td><code>pwd</code></td><td>Muestra en qué carpeta estás</td><td><code>pwd</code></td></tr>
+    <tr><td><code>ls</code></td><td>Lista los archivos de la carpeta</td><td><code>ls</code></td></tr>
+    <tr><td><code>cd</code></td><td>Entra en una carpeta (<code>cd ..</code> sube una)</td><td><code>cd Documentos</code></td></tr>
+    <tr><td><code>mkdir</code></td><td>Crea una carpeta</td><td><code>mkdir mi-proyecto</code></td></tr>
+    <tr><td><code>code .</code></td><td>Abre la carpeta actual en VS Code</td><td><code>code .</code></td></tr>
+  </table></div>
+  <div class="note tip"><strong>💡 Truco de Windows</strong>En el Explorador de archivos, clic derecho dentro de una carpeta → <em>Open Git Bash here</em> (o "Mostrar más opciones"). Así la terminal se abre directamente en esa carpeta.</div>
+
+  <h2>2. Decirle a Git quién eres</h2>
+  <p>Cada commit lleva el nombre y email de quien lo hizo. Configúralo una vez. Usa el mismo email que tengas (o vayas a tener) en tu cuenta de GitHub o GitLab: así la web asociará tus commits a tu perfil.</p>
+  <pre class="term" data-title="Git Bash">
+$ git config --global user.name "Tu Nombre"
+$ git config --global user.email "tu-email@ejemplo.com"
+$ git config --global init.defaultBranch main
+# Opcional: usar VS Code como editor para los mensajes
+$ git config --global core.editor "code --wait"
+</pre>
+  <p>Para comprobar lo configurado:</p>
+  <pre class="term" data-title="Git Bash">
+$ git config --global --list
+user.name=Tu Nombre
+user.email=tu-email@ejemplo.com
+init.defaultbranch=main
+</pre>
+  <div class="note"><strong>¿Qué significa <code>--global</code>?</strong>Que la configuración vale para todos los repositorios de tu usuario. Si en un proyecto concreto quieres otro email (por ejemplo, el del trabajo en el GitLab de tu empresa), entra en esa carpeta y repite el comando sin <code>--global</code>.</div>
+
+  <h2>3. Crear tu cuenta</h2>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+      <ol class="steps">
+        <li>Entra en <a href="https://github.com/signup" target="_blank" rel="noopener">github.com/signup</a>.</li>
+        <li>Elige un nombre de usuario: aparecerá en la URL de tus proyectos, <code>github.com/tu-usuario</code>.</li>
+        <li>Activa la verificación en dos pasos: foto de perfil → <strong>Settings → Password and authentication → Enable two-factor authentication</strong>. GitHub la exige.</li>
+      </ol>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+      <ol class="steps">
+        <li>Entra en <a href="https://gitlab.com/users/sign_up" target="_blank" rel="noopener">gitlab.com/users/sign_up</a>.</li>
+        <li>Elige un nombre de usuario: aparecerá en la URL de tus proyectos, <code>gitlab.com/tu-usuario</code>.</li>
+        <li>Activa la verificación en dos pasos: foto de perfil → <strong>Edit profile → Account → Enable two-factor authentication</strong>.</li>
+        <li>GitLab puede pedirte verificar tu identidad (teléfono o tarjeta, sin cobro) para usar sus servidores de automatización gratuitos, que necesitarás para publicar una web con GitLab Pages.</li>
+      </ol>
+    </div></div>
+  </div>
+
+  <h2>4. (Recomendado) Herramientas cómodas</h2>
+  <div class="grid">
+    <div class="card"><h4>Visual Studio Code</h4><p>Editor gratuito con Git integrado: ves cambios en colores, haces commits con botones y resuelves conflictos fácilmente. Sirve para las dos plataformas.</p></div>
+  </div>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb"><p><strong>GitHub Desktop</strong>: aplicación oficial con interfaz gráfica para Git. Para VS Code existe la extensión <em>GitHub Pull Requests</em>, que permite revisar PR sin salir del editor.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb"><p>No hay aplicación de escritorio oficial. Usa VS Code con la extensión oficial <strong>GitLab Workflow</strong> (merge requests, issues y pipelines dentro del editor) o un cliente genérico de Git.</p></div></div>
+  </div>
+  <p style="color:var(--muted);font-size:.93rem">Aprende primero los comandos: así entenderás lo que hacen los botones de cualquier herramienta.</p>
+
+  <div class="quiz" data-answer="2" data-explain="user.name y user.email identifican al autor de cada commit. Es lo primero que hay que configurar, uses GitHub o GitLab.">
+    <p class="q">¿Qué dos datos debes configurar antes de tu primer commit?</p>
+    <button class="opt">Tu contraseña de GitHub/GitLab y tu número de teléfono.</button>
+    <button class="opt">La carpeta de instalación y el idioma.</button>
+    <button class="opt">Tu nombre (user.name) y tu email (user.email).</button>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="mod" id="conceptos" data-title="Conceptos clave: las 3 zonas">
+  <div class="kicker">Módulo 3</div>
+  <h1>Conceptos clave: las tres zonas de Git</h1>
+  <p class="lead">Si entiendes este módulo, entiendes Git. Todo lo demás son variaciones.</p>
+
+  <p>Dentro de tu ordenador, Git maneja tus archivos en <strong>tres zonas</strong>, más una cuarta cuando usas GitHub o GitLab:</p>
+  <div class="zones">
+    <div class="zone z1"><b>📁 Directorio de trabajo</b><small>Tus archivos tal cual los ves y editas.</small></div>
+    <div class="arrow"><span>→</span>git add</div>
+    <div class="zone z2"><b>📦 Staging<br>(área de preparación)</b><small>Lo que has elegido para la próxima foto.</small></div>
+    <div class="arrow"><span>→</span>git commit</div>
+    <div class="zone z3"><b>🗄 Repositorio local</b><small>Historial de fotos (commits) guardadas en la carpeta oculta <code>.git</code>.</small></div>
+    <div class="arrow"><span>⇄</span>push / pull</div>
+    <div class="zone z4"><b>☁️ Remoto</b><small>Copia del repositorio en la nube: <span class="ptag gh">GitHub</span> o <span class="ptag gl">GitLab</span></small></div>
+  </div>
+
+  <h2>La analogía de la mudanza 📦</h2>
+  <ul>
+    <li><strong>Directorio de trabajo</strong> = tu casa, con todas tus cosas por medio.</li>
+    <li><strong>Staging</strong> = la caja abierta donde vas metiendo lo que quieres enviar en este viaje (<code>git add</code>).</li>
+    <li><strong>Commit</strong> = cerrar la caja, ponerle una etiqueta ("libros de la cocina") y guardarla en el almacén (<code>git commit</code>).</li>
+    <li><strong>Push</strong> = mandar las cajas etiquetadas a un guardamuebles externo (GitHub o GitLab).</li>
+  </ul>
+  <div class="note"><strong>¿Por qué existe el staging? ¿No sería más fácil guardar todo de golpe?</strong>Porque te permite hacer commits ordenados. Imagina que has corregido una falta de ortografía <em>y</em> añadido una sección nueva. Con el staging puedes guardarlos en dos commits separados, cada uno con su mensaje claro.</div>
+
+  <h2>¿Qué es exactamente un commit?</h2>
+  <p>Un commit es una instantánea de todos los archivos preparados, con:</p>
+  <ul>
+    <li>Un <strong>identificador único</strong> (hash), como <code>a3f9c21</code>. Es la "matrícula" del commit. GitHub y GitLab lo muestran igual.</li>
+    <li>El <strong>autor</strong>, la <strong>fecha</strong> y un <strong>mensaje</strong>.</li>
+    <li>Un enlace al <strong>commit anterior</strong> (su "padre"). Así se forma una cadena: el historial.</li>
+  </ul>
+  <svg class="diagram" viewBox="0 0 640 110" role="img" aria-label="Cadena de tres commits">
+    <g stroke="var(--muted)" stroke-width="2"><line x1="120" y1="45" x2="260" y2="45"/><line x1="320" y1="45" x2="460" y2="45"/></g>
+    <g fill="var(--ok)"><circle cx="90" cy="45" r="22"/><circle cx="290" cy="45" r="22"/><circle cx="490" cy="45" r="22"/></g>
+    <g font-size="11" text-anchor="middle" font-family="monospace"><text x="90" y="49" style="fill:#fff">a3f9c21</text><text x="290" y="49" style="fill:#fff">7b21e0d</text><text x="490" y="49" style="fill:#fff">c84d5aa</text></g>
+    <g text-anchor="middle"><text x="90" y="92" class="muted">"Primer commit"</text><text x="290" y="92" class="muted">"Añade índice"</text><text x="490" y="92" class="muted">"Corrige erratas"</text></g>
+    <rect x="540" y="10" width="70" height="22" rx="11" fill="var(--accent-soft)"/><text x="575" y="25" text-anchor="middle" style="fill:var(--accent);font-weight:600;font-size:12px">main</text>
+  </svg>
+
+  <h2>Los estados de un archivo</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Estado</th><th>Qué significa</th><th>Cómo lo ves en git status</th></tr>
+    <tr><td><span class="badge b-u">U</span> Sin seguimiento</td><td>Archivo nuevo que Git aún no vigila</td><td><code>Untracked files</code></td></tr>
+    <tr><td><span class="badge b-m">M</span> Modificado</td><td>Git lo vigila y ha cambiado desde el último commit</td><td><code>Changes not staged for commit</code></td></tr>
+    <tr><td><span class="badge b-m">A</span> Preparado</td><td>Está en el staging, entrará en el próximo commit</td><td><code>Changes to be committed</code></td></tr>
+    <tr><td><span class="badge b-ok">✓</span> Confirmado</td><td>Guardado en un commit y sin cambios nuevos</td><td><code>nothing to commit, working tree clean</code></td></tr>
+  </table></div>
+
+  <div class="quiz" data-answer="0" data-explain="git add mueve los cambios del directorio de trabajo al staging. Después, git commit los guarda en el historial.">
+    <p class="q">Has modificado un archivo. ¿Qué orden lo lleva al área de preparación (staging)?</p>
+    <button class="opt">git add</button>
+    <button class="opt">git commit</button>
+    <button class="opt">git push</button>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="El hash es el identificador único de cada commit. Lo usarás para referirte a versiones concretas.">
+    <p class="q">¿Qué es <code>a3f9c21</code> en el historial?</p>
+    <button class="opt">El nombre de la rama</button>
+    <button class="opt">La contraseña del repositorio</button>
+    <button class="opt">El identificador (hash) de un commit</button>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="mod" id="primer-repo" data-title="Tu primer repositorio">
+  <div class="kicker">Módulo 4 · Práctica</div>
+  <h1>Tu primer repositorio, paso a paso</h1>
+  <p class="lead">Vamos a crear un pequeño proyecto: un recetario en texto. Todo este módulo ocurre en tu ordenador, así que es igual para GitHub y GitLab. Abre Git Bash y sigue los pasos (o usa el <a href="#lab">simulador</a>).</p>
+
+  <h2>Paso 1 · Crear la carpeta e iniciar Git</h2>
+  <pre class="term" data-title="Git Bash">
+$ cd ~/Documents
+$ mkdir recetario
+$ cd recetario
+$ git init
+Initialized empty Git repository in C:/Users/tu/Documents/recetario/.git/
+</pre>
+  <p><code>git init</code> crea una carpeta oculta llamada <code>.git</code>. Ahí vive todo el historial. <strong>No la toques ni la borres</strong>: si la borras, la carpeta deja de ser un repositorio (tus archivos siguen, pero pierdes el historial).</p>
+
+  <h2>Paso 2 · Crear un archivo y mirar el estado</h2>
+  <p>Crea un archivo <code>README.md</code>. Puedes hacerlo con tu editor o desde la terminal:</p>
+  <pre class="term" data-title="Git Bash">
+$ echo "# Mi recetario" > README.md
+$ git status
+On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+        README.md
+
+nothing added to commit but untracked files present (use "git add" to track)
+</pre>
+  <div class="note tip"><strong>💡 Hábito de oro</strong><code>git status</code> es tu mejor amigo. Úsalo antes y después de cada orden: te dice exactamente en qué situación estás y suele sugerirte el siguiente paso.</div>
+
+  <h2>Paso 3 · Preparar (add) y confirmar (commit)</h2>
+  <pre class="term" data-title="Git Bash">
+$ git add README.md
+$ git status
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached &lt;file&gt;..." to unstage)
+        new file:   README.md
+
+$ git commit -m "Crea el README del recetario"
+[main (root-commit) 4e1b2a7] Crea el README del recetario
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+</pre>
+  <p>¡Enhorabuena! 🎉 Acabas de guardar la primera versión de tu proyecto.</p>
+
+  <h2>Paso 4 · Seguir trabajando</h2>
+  <p>Añadimos una receta y modificamos el README:</p>
+  <pre class="term" data-title="Git Bash">
+$ echo "Tortilla: huevos, patatas, aceite, sal" > tortilla.txt
+$ echo "Recetas fáciles para el día a día" >> README.md
+$ git status
+On branch main
+Changes not staged for commit:
+        modified:   README.md
+
+Untracked files:
+        tortilla.txt
+
+# Añadir TODO lo que ha cambiado de una vez:
+$ git add .
+$ git commit -m "Añade receta de tortilla y descripción"
+[main 9c03f11] Añade receta de tortilla y descripción
+ 2 files changed, 2 insertions(+)
+</pre>
+  <div class="note"><strong><code>git add .</code> vs <code>git add archivo</code></strong>El punto significa "todo lo de esta carpeta". Es cómodo, pero revisa antes con <code>git status</code> para no añadir cosas que no quieres (archivos temporales, contraseñas…).</div>
+
+  <h2>Paso 5 · Ver el historial</h2>
+  <pre class="term" data-title="Git Bash">
+$ git log --oneline
+9c03f11 (HEAD -> main) Añade receta de tortilla y descripción
+4e1b2a7 Crea el README del recetario
+</pre>
+  <p><code>HEAD</code> es un puntero que indica "dónde estás ahora". <code>HEAD -&gt; main</code> significa: estás en la rama <code>main</code>, en su último commit.</p>
+
+  <h2>Cómo escribir buenos mensajes de commit</h2>
+  <div class="grid">
+    <div class="card"><h4>✅ Bien</h4><p><code>Añade receta de gazpacho</code><br><code>Corrige cantidades de la tortilla</code><br><code>Reorganiza el índice por categorías</code></p></div>
+    <div class="card"><h4>❌ Mal</h4><p><code>cambios</code><br><code>asdf</code><br><code>arreglado ahora sí</code><br><code>varias cosas</code></p></div>
+  </div>
+  <p>Regla práctica: el mensaje debe completar la frase <em>"Si aplico este commit, el proyecto…"</em> → "…añade receta de gazpacho". Corto (menos de ~50 caracteres), en presente y describiendo <strong>qué</strong> cambia.</p>
+
+  <h2>El archivo .gitignore</h2>
+  <p>Hay archivos que nunca deberían entrar en el repositorio: temporales, configuraciones personales, contraseñas, carpetas enormes… Crea un archivo llamado <code>.gitignore</code> en la raíz y escribe uno por línea:</p>
+  <pre class="term file" data-title=".gitignore">
+# Archivos del sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Secretos y configuraciones locales
+.env
+claves.txt
+
+# Carpetas generadas o pesadas
+node_modules/
+render/
+*.log
+*.mp4
+</pre>
+  <p>Git ignorará todo lo que coincida. <code>*.log</code> significa "cualquier archivo que acabe en .log". Recuerda hacer commit del propio <code>.gitignore</code>.</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb"><p>Al crear un repositorio en la web puedes elegir una plantilla de <code>.gitignore</code> ya hecha (Node, Python, VisualStudio…) en el desplegable <strong>"Add .gitignore"</strong>.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb"><p>Desde la web del proyecto: botón <strong>+ → New file</strong>, escribe <code>.gitignore</code> como nombre y GitLab te ofrecerá un selector de plantillas (<strong>Apply a template</strong>).</p></div></div>
+  </div>
+  <div class="note warn"><strong>⚠️ Nunca subas contraseñas</strong>Si una clave llega a un commit y la subes a GitHub o GitLab, considérala comprometida aunque la borres después: queda en el historial. Cámbiala de inmediato.</div>
+
+  <div class="quiz" data-answer="1" data-explain="git init se ejecuta una vez por proyecto, dentro de la carpeta, y crea la carpeta oculta .git.">
+    <p class="q">¿Cuándo usas <code>git init</code>?</p>
+    <button class="opt">Antes de cada commit.</button>
+    <button class="opt">Una sola vez, para convertir una carpeta en repositorio.</button>
+    <button class="opt">Cada vez que abres la terminal.</button>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Los archivos listados en .gitignore no aparecen como 'untracked' ni se añaden con git add .">
+    <p class="q">Quieres que Git no vigile nunca los archivos <code>.env</code>. ¿Qué haces?</p>
+    <button class="opt">Borrarlos antes de cada commit.</button>
+    <button class="opt">Hacer <code>git commit</code> sin <code>git add</code>.</button>
+    <button class="opt">Añadir <code>.env</code> al archivo <code>.gitignore</code>.</button>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="mod" id="historial" data-title="Historial y deshacer cambios">
+  <div class="kicker">Módulo 5</div>
+  <h1>Ver el historial y deshacer cambios</h1>
+  <p class="lead">Aquí está la magia de Git: equivocarse deja de dar miedo.</p>
+
+  <h2>Mirar el pasado</h2>
+  <pre class="term" data-title="Git Bash">
+# Historial completo (pulsa q para salir)
+$ git log
+commit 9c03f11d2b... (HEAD -> main)
+Author: Tu Nombre &lt;tu-email@ejemplo.com&gt;
+Date:   Wed Nov 18 10:42:13 2026 +0100
+
+    Añade receta de tortilla y descripción
+
+# Historial resumido, una línea por commit
+$ git log --oneline
+# Con dibujo de ramas
+$ git log --oneline --graph --all
+# Ver qué cambió exactamente en un commit
+$ git show 9c03f11
+</pre>
+  <p>Una vez subido, también puedes ver el historial en la web:</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb"><p>En la página del repositorio, enlace <strong>"N commits"</strong> (icono de reloj) sobre la lista de archivos. Pulsa un commit para ver sus cambios en rojo y verde.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb"><p>Menú lateral <strong>Code → Commits</strong>. Para ver las ramas dibujadas: <strong>Code → Repository graph</strong>.</p></div></div>
+  </div>
+
+  <h2>Ver diferencias antes de guardar</h2>
+  <pre class="term" data-title="Git Bash">
+$ echo "Tortilla: huevos, patatas, cebolla, aceite, sal" > tortilla.txt
+$ git diff
+diff --git a/tortilla.txt b/tortilla.txt
+-Tortilla: huevos, patatas, aceite, sal
++Tortilla: huevos, patatas, cebolla, aceite, sal
+# Ver lo que ya está en staging:
+$ git diff --staged
+</pre>
+  <p>Las líneas con <code>-</code> (rojo) son las que se quitan y las de <code>+</code> (verde) las que se añaden. ¡Debate de la cebolla resuelto en el historial! 🧅</p>
+
+  <h2>Recetas para deshacer (de menos a más grave)</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Situación</th><th>Solución</th></tr>
+    <tr><td>He cambiado un archivo y quiero <strong>descartar los cambios</strong> (volver a como estaba en el último commit)</td><td><code>git restore archivo</code></td></tr>
+    <tr><td>He hecho <code>git add</code> de algo que no quería <strong>(sacarlo del staging)</strong>, sin perder los cambios</td><td><code>git restore --staged archivo</code></td></tr>
+    <tr><td>Me he equivocado en el <strong>mensaje del último commit</strong> (y aún no lo he subido)</td><td><code>git commit --amend -m "Mensaje bueno"</code></td></tr>
+    <tr><td>Se me olvidó añadir un archivo al último commit</td><td><code>git add olvidado.txt</code> y <code>git commit --amend --no-edit</code></td></tr>
+    <tr><td>Un commit antiguo introdujo un error y quiero <strong>anularlo</strong> de forma segura</td><td><code>git revert &lt;hash&gt;</code> (crea un commit nuevo que deshace el otro)</td></tr>
+    <tr><td>Quiero guardar cambios a medias un momento sin hacer commit</td><td><code>git stash</code> … y luego <code>git stash pop</code></td></tr>
+  </table></div>
+
+  <h3>Ejemplo práctico: recuperar un archivo estropeado</h3>
+  <pre class="term" data-title="Git Bash">
+# ¡Ups! Sobrescribimos la receta por error
+$ echo "lo que sea" > tortilla.txt
+$ git status
+        modified:   tortilla.txt
+# Volver a la versión del último commit
+$ git restore tortilla.txt
+$ cat tortilla.txt
+Tortilla: huevos, patatas, aceite, sal
+</pre>
+
+  <h3>Ejemplo práctico: anular un commit ya subido</h3>
+  <pre class="term" data-title="Git Bash">
+$ git log --oneline
+b71e0c2 (HEAD -> main) Borra la sección de postres
+9c03f11 Añade receta de tortilla y descripción
+$ git revert b71e0c2 --no-edit
+[main e5d4f90] Revert "Borra la sección de postres"
+</pre>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb"><p>Si el cambio entró mediante un pull request, en la página del PR ya fusionado tienes el botón <strong>Revert</strong>: crea automáticamente un PR nuevo que lo deshace.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb"><p>En un merge request ya fusionado, o en la página de cualquier commit, tienes el botón <strong>Revert</strong>: GitLab crea el commit de anulación (y puede abrir un merge request con él).</p></div></div>
+  </div>
+  <div class="note warn"><strong>⚠️ Cuidado con <code>git reset --hard</code></strong>Verás este comando en internet. Borra cambios sin preguntar y reescribe el historial. Como principiante, prefiere <code>restore</code> y <code>revert</code>: son seguros. Y nunca uses <code>--amend</code> o <code>reset</code> sobre commits que ya has subido al remoto y comparte más gente.</div>
+  <div class="note"><strong>Ramas protegidas</strong>Tanto <span class="ptag gh">GitHub</span> como <span class="ptag gl">GitLab</span> permiten proteger <code>main</code> para que nadie pueda reescribir su historial. En GitLab viene activado por defecto; en GitHub se configura en <em>Settings → Branches / Rules</em>.</div>
+
+  <h2>Viajar a una versión antigua (solo mirar)</h2>
+  <pre class="term" data-title="Git Bash">
+$ git switch --detach 4e1b2a7
+# ...miras los archivos tal y como estaban...
+$ git switch main
+</pre>
+  <p>Mientras estás en un commit antiguo, Git dice que estás en <em>"detached HEAD"</em> (cabeza desacoplada). Suena alarmante pero solo significa "no estás en ninguna rama". Vuelve con <code>git switch main</code>.</p>
+
+  <div class="quiz" data-answer="0" data-explain="git restore archivo devuelve el archivo a la versión guardada, descartando los cambios no guardados.">
+    <p class="q">Has destrozado <code>index.html</code> y no has hecho commit. ¿Cómo vuelves a la última versión guardada?</p>
+    <button class="opt"><code>git restore index.html</code></button>
+    <button class="opt"><code>git push index.html</code></button>
+    <button class="opt"><code>git init index.html</code></button>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="revert no borra historia: añade un commit nuevo que invierte los cambios. Por eso es seguro en proyectos compartidos.">
+    <p class="q">¿Por qué <code>git revert</code> es seguro en repositorios compartidos?</p>
+    <button class="opt">Porque borra el commit de todos los ordenadores.</button>
+    <button class="opt">Porque no reescribe el historial: crea un commit nuevo que deshace el anterior.</button>
+    <button class="opt">Porque pide permiso a GitHub o GitLab.</button>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="mod" id="ramas" data-title="Ramas y fusiones">
+  <div class="kicker">Módulo 6</div>
+  <h1>Ramas (branches) y fusiones (merge)</h1>
+  <p class="lead">Las ramas te permiten trabajar en algo nuevo sin estropear lo que ya funciona.</p>
+
+  <h2>¿Qué es una rama?</h2>
+  <p>Una rama es una línea de trabajo independiente. La rama principal se llama <code>main</code> y debería contener siempre la versión "buena". Cuando quieres probar algo, creas una rama, trabajas allí y, cuando está listo, la <strong>fusionas</strong> con <code>main</code>.</p>
+  <svg class="diagram" viewBox="0 0 680 170" role="img" aria-label="Rama postres que sale de main y se fusiona de vuelta">
+    <g stroke="var(--muted)" stroke-width="2.5" fill="none">
+      <line x1="60" y1="120" x2="600" y2="120"/>
+      <path d="M200 120 C 230 50, 250 50, 290 50 L 430 50 C 470 50, 490 60, 520 120"/>
+    </g>
+    <g fill="var(--ok)"><circle cx="80" cy="120" r="14"/><circle cx="200" cy="120" r="14"/><circle cx="380" cy="120" r="14"/><circle cx="520" cy="120" r="16"/></g>
+    <g fill="var(--accent)"><circle cx="300" cy="50" r="14"/><circle cx="420" cy="50" r="14"/></g>
+    <text x="40" y="160" class="muted">main</text>
+    <rect x="560" y="106" width="64" height="26" rx="13" fill="var(--ok-soft)"/><text x="592" y="124" text-anchor="middle" style="fill:var(--ok);font-weight:600">main</text>
+    <text x="300" y="25" text-anchor="middle" style="fill:var(--accent);font-weight:600">rama: postres</text>
+    <text x="380" y="152" text-anchor="middle" class="muted">arreglo urgente</text>
+    <text x="520" y="155" text-anchor="middle" class="muted">merge</text>
+  </svg>
+
+  <h2>Ejemplo práctico: añadir una sección de postres</h2>
+  <pre class="term" data-title="Git Bash">
+# Ver ramas (la del asterisco es en la que estás)
+$ git branch
+* main
+# Crear una rama nueva y cambiarte a ella
+$ git switch -c postres
+Switched to a new branch 'postres'
+$ echo "Flan: huevos, leche, azúcar" > flan.txt
+$ git add flan.txt
+$ git commit -m "Añade receta de flan"
+[postres 1a2b3c4] Añade receta de flan
+# Volver a main: ¡flan.txt desaparece de la carpeta! (sigue a salvo en su rama)
+$ git switch main
+Switched to branch 'main'
+$ ls
+README.md  tortilla.txt
+</pre>
+  <p>Cuando la rama está lista, la fusionamos con <code>main</code>. <strong>Siempre</strong> te colocas primero en la rama que va a <em>recibir</em> los cambios:</p>
+  <pre class="term" data-title="Git Bash">
+$ git switch main
+$ git merge postres
+Updating 9c03f11..1a2b3c4
+Fast-forward
+ flan.txt | 1 +
+# Ya no necesitamos la rama: la borramos
+$ git branch -d postres
+Deleted branch postres (was 1a2b3c4).
+</pre>
+  <div class="note"><strong>¿Fast-forward?</strong>Si <code>main</code> no ha cambiado desde que creaste la rama, Git simplemente "adelanta" el puntero de <code>main</code>. Si los dos han avanzado, Git crea un <em>commit de fusión</em> (merge commit) que une ambas historias.</div>
+  <div class="note tip"><strong>💡 <code>switch</code> o <code>checkout</code></strong>En tutoriales antiguos verás <code>git checkout rama</code> y <code>git checkout -b rama</code>. Hacen lo mismo que <code>git switch rama</code> y <code>git switch -c rama</code>; <code>switch</code> es la forma moderna y más clara.</div>
+  <p>En equipo, lo normal no es fusionar en tu ordenador, sino desde la web, después de que alguien revise los cambios:</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb"><p>Se fusiona mediante un <strong>pull request (PR)</strong>. Lo verás en el módulo 9.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb"><p>Se fusiona mediante un <strong>merge request (MR)</strong>: es exactamente lo mismo con otro nombre. Lo verás en el módulo 9.</p></div></div>
+  </div>
+
+  <h2>Conflictos: cuando dos cambios chocan 💥</h2>
+  <p>Si en dos ramas se modifica <strong>la misma línea del mismo archivo</strong>, Git no sabe con cuál quedarse y te pregunta. Eso es un conflicto. No es un error: es Git pidiéndote que decidas.</p>
+  <pre class="term" data-title="Git Bash">
+$ git merge picante
+Auto-merging tortilla.txt
+CONFLICT (content): Merge conflict in tortilla.txt
+Automatic merge failed; fix conflicts and then commit the result.
+</pre>
+  <p>Al abrir el archivo verás unas marcas:</p>
+  <pre class="term file" data-title="tortilla.txt (con conflicto)">
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+Tortilla: huevos, patatas, cebolla, aceite, sal
+=======
+Tortilla: huevos, patatas, guindilla, aceite, sal
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; picante
+</pre>
+  <ol class="steps">
+    <li>Entre <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> y <code>=======</code> está tu versión (la rama en la que estás). Entre <code>=======</code> y <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>, la de la otra rama.</li>
+    <li>Edita el archivo y déjalo como quieras que quede, <strong>borrando las tres líneas de marcas</strong>. Por ejemplo: <code>Tortilla: huevos, patatas, cebolla, guindilla, aceite, sal</code></li>
+    <li>Marca el conflicto como resuelto y termina la fusión:</li>
+  </ol>
+  <pre class="term" data-title="Git Bash">
+$ git add tortilla.txt
+$ git commit -m "Fusiona rama picante"
+# ¿Te has liado y quieres cancelar la fusión? (antes del commit)
+$ git merge --abort
+</pre>
+  <div class="note tip"><strong>💡 VS Code te ayuda</strong>Al abrir un archivo con conflicto, VS Code muestra botones: <em>Accept Current Change</em>, <em>Accept Incoming Change</em>, <em>Accept Both Changes</em>. Muy cómodo.</div>
+  <p>Si el conflicto aparece en la web al intentar fusionar:</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb"><p>El PR muestra <em>"This branch has conflicts that must be resolved"</em>. Los conflictos sencillos se arreglan con el botón <strong>Resolve conflicts</strong>, que abre un editor en la web.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb"><p>El MR muestra <em>"Merge blocked: merge conflicts must be resolved"</em>. Pulsa <strong>Resolve conflicts</strong> y elige <em>Use ours</em> / <em>Use theirs</em> en cada bloque, o edítalo a mano (<em>Edit inline</em>).</p></div></div>
+  </div>
+
+  <div class="quiz" data-answer="2" data-explain="Te colocas en la rama que recibe (main) y fusionas la otra: git switch main y después git merge nueva-rama.">
+    <p class="q">Quieres llevar los cambios de la rama <code>diseño</code> a <code>main</code> en tu ordenador. ¿Qué haces?</p>
+    <button class="opt">Desde <code>diseño</code>: <code>git merge diseño</code></button>
+    <button class="opt"><code>git push diseño main</code></button>
+    <button class="opt"><code>git switch main</code> y luego <code>git merge diseño</code></button>
+  </div>
+  <div class="quiz" data-answer="1" data-explain="Tras editar el archivo y quitar las marcas, se hace git add para marcarlo como resuelto y git commit para cerrar la fusión.">
+    <p class="q">Has editado el archivo en conflicto y quitado las marcas. ¿Qué falta?</p>
+    <button class="opt">Nada, Git lo detecta solo.</button>
+    <button class="opt"><code>git add archivo</code> y <code>git commit</code></button>
+    <button class="opt">Borrar la carpeta <code>.git</code></button>
+  </div>
+</section>
+
+<!-- ============ 7 LAB ============ -->
+<section class="mod" id="lab" data-title="Laboratorio interactivo">
+  <div class="kicker">Módulo 7 · Práctica interactiva</div>
+  <h1>Laboratorio: practica sin miedo a romper nada</h1>
+  <p class="lead">Un simulador de Git dentro de esta página. Escribe comandos reales y observa cómo se mueven los archivos entre zonas. Completa las misiones.</p>
+  <div class="note tip"><strong>💡 Cómo usarlo</strong>Toca cualquier comando de las misiones para escribirlo en la terminal, edítalo si quieres y pulsa <kbd>Enter</kbd> (o el botón <em>Ejecutar</em> en el móvil). Flechas ↑/↓ para repetir comandos. Escribe <code>help</code> para ver todo lo que entiende el simulador. Sirve igual para GitHub y GitLab: solo cambia la URL del remoto.</div>
+
+  <div class="sim">
+    <div class="simterm">
+      <div class="termbar"><span class="dots"><i></i><i></i><i></i></span><span class="t">Simulador · mi-proyecto</span></div>
+      <div id="sim-out" aria-live="polite"></div>
+      <form class="siminput" id="sim-form"><label for="sim-in" id="sim-prompt">mi-proyecto $</label><input id="sim-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" placeholder="escribe un comando… (prueba: help)"><button class="run" type="submit">Ejecutar</button></form>
+    </div>
+    <div class="simstate">
+      <div class="box"><h5>📁 Directorio de trabajo <span id="st-branch"></span></h5><ul id="st-work"></ul></div>
+      <div class="box"><h5>📦 Staging (próximo commit)</h5><ul id="st-stage"></ul></div>
+      <div class="box"><h5>🗄 Repositorio local</h5><ul id="st-repo"></ul></div>
+      <div class="box"><h5>☁️ Remoto (origin) <span id="st-plat"></span></h5><ul id="st-remote"></ul></div>
+    </div>
+  </div>
+  <div class="simtools">
+    <button class="btn" id="sim-teammate">👩‍💻 Simular que una compañera sube un cambio al remoto</button>
+    <button class="btn" id="sim-reset">↺ Reiniciar simulador</button>
+  </div>
+  <p style="font-size:.85rem;color:var(--muted)">Leyenda: <span class="badge b-u">U</span> sin seguimiento · <span class="badge b-m">M</span> modificado · <span class="badge b-x">!</span> en conflicto · <span class="badge b-ok">✓</span> guardado</p>
+
+  <h2>Misiones</h2>
+  <div class="card"><ol class="missions" id="missions"></ol></div>
+  <div class="note"><strong>¿Cómo edito archivos en el simulador?</strong>No hay editor, así que usamos la terminal: <code>echo "texto" &gt; archivo</code> reemplaza el contenido; <code>echo "texto" &gt;&gt; archivo</code> añade una línea al final; <code>cat archivo</code> lo muestra. En tu ordenador puedes usar estos mismos comandos en Git Bash, o simplemente editar con VS Code.</div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="mod" id="github" data-title="Subir tu proyecto">
+  <div class="kicker">Módulo 8 · Práctica</div>
+  <h1>Subir tu proyecto a GitHub o GitLab</h1>
+  <p class="lead">Conectamos tu repositorio local con uno en la nube. Así tienes copia de seguridad y puedes compartirlo.</p>
+
+  <h2>Paso 1 · Crear el repositorio en la web</h2>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+      <ol class="steps">
+        <li>Pulsa el botón <strong>+</strong> (arriba a la derecha) → <strong>New repository</strong>.</li>
+        <li><strong>Repository name</strong>: <code>recetario</code>.</li>
+        <li>Visibilidad: <strong>Public</strong> (todo el mundo puede verlo) o <strong>Private</strong> (solo tú y quien invites).</li>
+        <li><strong>No añadas</strong> README, .gitignore ni licencia si ya tienes el proyecto en tu ordenador (evitarás un conflicto inicial).</li>
+        <li>Pulsa <strong>Create repository</strong>. Copia la URL HTTPS:<br><code>https://github.com/tu-usuario/recetario.git</code></li>
+      </ol>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+      <ol class="steps">
+        <li>Pulsa el botón <strong>+</strong> (arriba a la izquierda) → <strong>New project/repository</strong> → <strong>Create blank project</strong>.</li>
+        <li><strong>Project name</strong>: <code>recetario</code>. En <em>Project URL</em> deja tu usuario.</li>
+        <li><strong>Visibility Level</strong>: <strong>Private</strong> o <strong>Public</strong>.</li>
+        <li><strong>Desmarca "Initialize repository with a README"</strong>: en GitLab viene marcado por defecto y, si ya tienes el proyecto en local, provoca un conflicto inicial.</li>
+        <li>Pulsa <strong>Create project</strong>. Copia la URL de <em>Code → Clone with HTTPS</em>:<br><code>https://gitlab.com/tu-usuario/recetario.git</code></li>
+      </ol>
+    </div></div>
+  </div>
+
+  <h2>Paso 2 · Conectar y subir (push)</h2>
+  <p>Los comandos son idénticos; solo cambia la URL:</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+<pre class="term" data-title="Git Bash">
+# "origin" es el nombre habitual del remoto
+$ git remote add origin https://github.com/tu-usuario/recetario.git
+$ git remote -v
+origin  https://github.com/tu-usuario/recetario.git (fetch)
+origin  https://github.com/tu-usuario/recetario.git (push)
+# Primera subida: -u enlaza tu main con la del remoto
+$ git push -u origin main
+To https://github.com/tu-usuario/recetario.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+</pre>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+<pre class="term" data-title="Git Bash">
+# "origin" es el nombre habitual del remoto
+$ git remote add origin https://gitlab.com/tu-usuario/recetario.git
+$ git remote -v
+origin  https://gitlab.com/tu-usuario/recetario.git (fetch)
+origin  https://gitlab.com/tu-usuario/recetario.git (push)
+# Primera subida: -u enlaza tu main con la del remoto
+$ git push -u origin main
+To https://gitlab.com/tu-usuario/recetario.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+</pre>
+    </div></div>
+  </div>
+
+  <h3>🔐 La primera vez te pedirá iniciar sesión</h3>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+      <p>Git para Windows incluye <strong>Git Credential Manager</strong>: se abre una ventana para autorizar el acceso con tu cuenta (<em>Sign in with your browser</em>). Se guarda y no te lo volverá a pedir.</p>
+      <p>Alternativa: un <strong>Personal access token</strong> (<em>Settings → Developer settings → Personal access tokens</em>), que se pega en lugar de la contraseña. GitHub no acepta tu contraseña normal en la terminal.</p>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+      <p><strong>Git Credential Manager</strong> también funciona con GitLab.com: elige <em>Browser</em> en la ventana que aparece y autoriza en la web. Se guarda para las siguientes veces.</p>
+      <p>Alternativa: un <strong>Personal access token</strong> (<em>Edit profile → Access tokens</em>, con los permisos <code>read_repository</code> y <code>write_repository</code>), que se pega en lugar de la contraseña.</p>
+    </div></div>
+  </div>
+  <p>Recarga la página del repositorio en la web: ¡ahí están tus archivos y tu historial! A partir de ahora, el ciclo diario es simplemente:</p>
+  <pre class="term" data-title="Git Bash">
+$ git add .
+$ git commit -m "Añade receta de lentejas"
+$ git push
+</pre>
+  <div class="note tip only-gl"><strong>💡 Truco exclusivo de GitLab: crear el proyecto con push</strong>En GitLab puedes saltarte el paso 1: si haces <code>git push -u https://gitlab.com/tu-usuario/proyecto-nuevo.git main</code> con un nombre que no existe, GitLab crea el proyecto (privado) automáticamente.</div>
+
+  <h2>Paso 3 · Traer cambios (pull)</h2>
+  <p>Si editas algo directamente en la web, desde otro ordenador, o lo hace un compañero, tráelo a tu ordenador con:</p>
+  <pre class="term" data-title="Git Bash">
+$ git pull
+Updating 9c03f11..f00ba12
+Fast-forward
+ README.md | 2 ++
+</pre>
+  <div class="note tip"><strong>💡 Costumbre sana</strong>Haz <code>git pull</code> al empezar a trabajar cada día y <code>git push</code> al terminar. Evitarás la mayoría de los problemas.</div>
+  <div class="note warn"><strong>⚠️ Error típico: "Updates were rejected"</strong>Significa que en el remoto hay commits que tú no tienes. Solución: <code>git pull</code> (resuelve conflictos si aparecen) y luego <code>git push</code> de nuevo. Puedes practicarlo en el laboratorio con el botón "compañera".</div>
+
+  <h2>Clonar: descargar un repositorio que ya existe</h2>
+  <p>Para trabajar en un proyecto que ya está en la web (tuyo o de otra persona), lo <strong>clonas</strong>. Esto descarga la carpeta con todo su historial y deja configurado <code>origin</code> automáticamente.</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+      <p>Botón verde <strong>&lt;&gt; Code</strong> → pestaña <strong>HTTPS</strong> → copiar.</p>
+<pre class="term" data-title="Git Bash">
+$ git clone https://github.com/tu-usuario/recetario.git
+Cloning into 'recetario'...
+$ cd recetario
+</pre>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+      <p>Botón azul <strong>Code</strong> → <strong>Clone with HTTPS</strong> → copiar.</p>
+<pre class="term" data-title="Git Bash">
+$ git clone https://gitlab.com/tu-usuario/recetario.git
+Cloning into 'recetario'...
+$ cd recetario
+</pre>
+    </div></div>
+  </div>
+
+  <h2>Recorrido por la página de un repositorio</h2>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub · pestañas arriba</div><div class="vb">
+      <div class="table-wrap"><table>
+        <tr><th>Sección</th><th>Para qué</th></tr>
+        <tr><td><strong>&lt;&gt; Code</strong></td><td>Archivos, README, botón de clonar, selector de ramas</td></tr>
+        <tr><td><strong>Issues</strong></td><td>Tareas, errores e ideas</td></tr>
+        <tr><td><strong>Pull requests</strong></td><td>Propuestas de cambios</td></tr>
+        <tr><td><strong>Actions</strong></td><td>Automatizaciones (pruebas, despliegues)</td></tr>
+        <tr><td><strong>Settings</strong></td><td>Nombre, visibilidad, colaboradores, Pages</td></tr>
+      </table></div>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab · menú lateral izquierdo</div><div class="vb">
+      <div class="table-wrap"><table>
+        <tr><th>Sección</th><th>Para qué</th></tr>
+        <tr><td><strong>Code</strong></td><td>Repository (archivos), Commits, Branches, Merge requests</td></tr>
+        <tr><td><strong>Plan</strong></td><td>Issues y tableros (Boards)</td></tr>
+        <tr><td><strong>Build</strong></td><td>Pipelines: automatizaciones CI/CD</td></tr>
+        <tr><td><strong>Deploy</strong></td><td>Pages y entornos</td></tr>
+        <tr><td><strong>Manage / Settings</strong></td><td>Miembros, visibilidad, ramas protegidas</td></tr>
+      </table></div>
+    </div></div>
+  </div>
+
+  <div class="quiz" data-answer="0" data-explain="git clone descarga un repositorio remoto completo y configura origin. Funciona igual con URLs de GitHub y de GitLab.">
+    <p class="q">Quieres descargar por primera vez un proyecto de GitHub o GitLab. ¿Qué comando usas?</p>
+    <button class="opt"><code>git clone URL</code></button>
+    <button class="opt"><code>git pull URL</code></button>
+    <button class="opt"><code>git init URL</code></button>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="El push es rechazado porque el remoto tiene commits nuevos. Primero git pull para integrarlos y después git push.">
+    <p class="q">Haces <code>git push</code> y te dice "rejected… fetch first". ¿Qué haces?</p>
+    <button class="opt">Borrar el repositorio de la web y crearlo de nuevo.</button>
+    <button class="opt">Repetir <code>git push</code> hasta que funcione.</button>
+    <button class="opt"><code>git pull</code>, resolver si hay conflictos, y luego <code>git push</code>.</button>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="mod" id="colaborar" data-title="Colaborar: PR/MR, issues, forks">
+  <div class="kicker">Módulo 9</div>
+  <h1>Colaborar: pull/merge requests, issues y forks</h1>
+  <p class="lead">Así trabaja en equipo casi todo el mundo que usa GitHub o GitLab.</p>
+
+  <h2>Issues: la lista de tareas del proyecto</h2>
+  <p>Un <strong>issue</strong> es una ficha para reportar un error, proponer una idea o apuntar una tarea. Tiene título, descripción, comentarios, etiquetas y una persona asignada. Cada issue tiene un número, por ejemplo <code>#12</code>.</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb"><p>Pestaña <strong>Issues → New issue</strong>. Etiquetas en <em>Labels</em> (<code>bug</code>, <code>enhancement</code>…), persona en <em>Assignees</em>. Tablero tipo kanban: <strong>Projects</strong>.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb"><p>Menú <strong>Plan → Issues → New issue</strong>. Etiquetas en <em>Labels</em>, persona en <em>Assignee</em>. Tablero tipo kanban: <strong>Plan → Issue boards</strong>.</p></div></div>
+  </div>
+  <div class="note tip"><strong>💡 Truco (funciona en las dos)</strong>Si en un commit o en la descripción del PR/MR escribes <code>Closes #12</code>, al fusionarse en <code>main</code> el issue 12 se cierra automáticamente.</div>
+
+  <h2>Proponer cambios: pull request o merge request</h2>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub · Pull request (PR)</div><div class="vb"><p>Se numeran con <code>#</code>, igual que los issues: <code>#15</code>.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab · Merge request (MR)</div><div class="vb"><p>Se numeran con <code>!</code> para distinguirlos de los issues: <code>!15</code>.</p></div></div>
+  </div>
+  <p>Ambos significan lo mismo: <em>"he hecho estos cambios en mi rama, ¿los revisas y los fusionamos en main?"</em>. Permiten que otra persona comente línea a línea antes de aceptar.</p>
+
+  <h3>El flujo completo</h3>
+  <ol class="steps">
+    <li><strong>Actualiza main</strong> y crea una rama para tu tarea.</li>
+    <li><strong>Trabaja y haz commits</strong> en esa rama.</li>
+    <li><strong>Sube la rama</strong> al remoto.</li>
+    <li><strong>Abre el PR/MR</strong> en la web.</li>
+    <li><strong>Revisión</strong>: los compañeros comentan; tú corriges con más commits en la misma rama (el PR/MR se actualiza solo).</li>
+    <li><strong>Merge</strong>: los cambios entran en <code>main</code>.</li>
+    <li><strong>Limpieza</strong>: actualizas tu main local y borras la rama.</li>
+  </ol>
+  <p>Pasos 1 a 3, en la terminal (igual en las dos):</p>
+  <pre class="term" data-title="Git Bash">
+$ git switch main
+$ git pull
+$ git switch -c receta-paella
+$ echo "Paella: arroz, azafrán, judía verde, pollo, conejo" > paella.txt
+$ git add paella.txt
+$ git commit -m "Añade receta de paella (closes #12)"
+$ git push -u origin receta-paella
+</pre>
+  <p>Pasos 4 a 6, en la web:</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+<pre class="term" data-title="Respuesta del push">
+remote: Create a pull request for 'receta-paella' on GitHub by visiting:
+remote:   https://github.com/tu-usuario/recetario/pull/new/receta-paella
+</pre>
+      <ol class="steps">
+        <li>Abre ese enlace, o pulsa el aviso amarillo <strong>Compare &amp; pull request</strong> de la página del repositorio.</li>
+        <li>Comprueba <em>base: main ← compare: receta-paella</em>, escribe título y descripción → <strong>Create pull request</strong>.</li>
+        <li>Revisores: pestaña <strong>Files changed</strong> → comentar líneas → <strong>Review changes → Approve</strong>.</li>
+        <li><strong>Merge pull request → Confirm merge</strong>, y después <strong>Delete branch</strong>.</li>
+      </ol>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+<pre class="term" data-title="Respuesta del push">
+remote: To create a merge request for receta-paella, visit:
+remote:   https://gitlab.com/tu-usuario/recetario/-/merge_requests/new?merge_request%5Bsource_branch%5D=receta-paella
+</pre>
+      <ol class="steps">
+        <li>Abre ese enlace, o pulsa <strong>Create merge request</strong> en el aviso de la página del proyecto.</li>
+        <li>Comprueba <em>source: receta-paella → target: main</em>, escribe título y descripción → <strong>Create merge request</strong>.</li>
+        <li>Revisores: pestaña <strong>Changes</strong> → comentar líneas → botón <strong>Approve</strong>.</li>
+        <li>Botón <strong>Merge</strong>. Deja marcada <em>Delete source branch</em> para que borre la rama remota sola.</li>
+      </ol>
+      <p>💡 Si escribes <code>Draft:</code> al inicio del título, el MR queda como borrador y no se puede fusionar hasta que lo marques como listo.</p>
+    </div></div>
+  </div>
+  <p>Paso 7, de vuelta en la terminal (igual en las dos):</p>
+  <pre class="term" data-title="Git Bash">
+$ git switch main
+$ git pull
+$ git branch -d receta-paella
+</pre>
+
+  <h2>Fork: contribuir a proyectos de otras personas</h2>
+  <p>En repositorios ajenos no tienes permiso para crear ramas. La solución es un <strong>fork</strong>: una copia del repositorio en <em>tu</em> cuenta.</p>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+      <ol class="steps">
+        <li>En el repositorio original, botón <strong>Fork</strong> (arriba a la derecha) → <strong>Create fork</strong>. Se crea <code>github.com/tu-usuario/proyecto</code>.</li>
+        <li>Clona tu fork, crea una rama, haz commits y <code>push</code>.</li>
+        <li>En tu fork aparecerá <strong>Contribute → Open pull request</strong>: el PR va de tu fork al repositorio original.</li>
+      </ol>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+      <ol class="steps">
+        <li>En el proyecto original, botón <strong>Fork</strong> (arriba a la derecha) → elige tu usuario como <em>namespace</em> → <strong>Fork project</strong>.</li>
+        <li>Clona tu fork, crea una rama, haz commits y <code>push</code>.</li>
+        <li><strong>Create merge request</strong>, con <em>target project</em> = el proyecto original.</li>
+      </ol>
+    </div></div>
+  </div>
+  <div class="grid">
+    <div class="card"><h4>Clone</h4><p>Copia un repositorio <strong>a tu ordenador</strong>.</p></div>
+    <div class="card"><h4>Fork</h4><p>Copia un repositorio <strong>a tu cuenta</strong> de GitHub o GitLab.</p></div>
+  </div>
+
+  <h2>README.md: la portada del proyecto</h2>
+  <p>Las dos plataformas muestran automáticamente el archivo <code>README.md</code> en la página principal del repositorio. Se escribe en <strong>Markdown</strong>, un formato de texto sencillo:</p>
+  <pre class="term file" data-title="README.md">
+# Recetario 🍳
+
+Recetas fáciles para el día a día.
+
+## Contenido
+- **Tortilla** de patatas
+- *Flan* casero
+- [Paella](paella.txt)
+
+## Cómo contribuir
+1. Haz un fork
+2. Crea una rama
+3. Abre un pull request (GitHub) o merge request (GitLab)
+</pre>
+  <div class="table-wrap"><table>
+    <tr><th>Escribes</th><th>Obtienes</th></tr>
+    <tr><td><code># Título</code> / <code>## Subtítulo</code></td><td>Encabezados</td></tr>
+    <tr><td><code>**negrita**</code> / <code>*cursiva*</code></td><td><strong>negrita</strong> / <em>cursiva</em></td></tr>
+    <tr><td><code>- elemento</code> / <code>1. elemento</code></td><td>Listas</td></tr>
+    <tr><td><code>[texto](url)</code></td><td>Enlace</td></tr>
+    <tr><td><code>`código`</code></td><td><code>código</code></td></tr>
+  </table></div>
+
+  <div class="quiz" data-answer="1" data-explain="Un fork es una copia de un repositorio ajeno en tu cuenta, desde la que propones cambios al original con un pull request (GitHub) o merge request (GitLab).">
+    <p class="q">Quieres proponer una mejora a un proyecto en el que no tienes permisos. ¿Por dónde empiezas?</p>
+    <button class="opt">Haciendo <code>git push</code> directamente a su main.</button>
+    <button class="opt">Haciendo un fork, y después un PR/MR desde tu fork.</button>
+    <button class="opt">Escribiendo al autor para que te dé su contraseña.</button>
+  </div>
+  <div class="quiz" data-answer="2" data-explain="Son el mismo concepto: GitHub lo llama pull request y GitLab, merge request.">
+    <p class="q">¿Qué diferencia hay entre un pull request y un merge request?</p>
+    <button class="opt">El merge request fusiona automáticamente sin revisión.</button>
+    <button class="opt">El pull request solo sirve para forks.</button>
+    <button class="opt">Ninguna en lo esencial: es el mismo concepto con distinto nombre (GitHub / GitLab).</button>
+  </div>
+  <div class="quiz" data-answer="0" data-explain="El PR/MR se actualiza automáticamente con cada push a la misma rama.">
+    <p class="q">Te piden un cambio en tu PR/MR. ¿Qué haces?</p>
+    <button class="opt">Haces commit del arreglo en la misma rama y <code>git push</code>: se actualiza solo.</button>
+    <button class="opt">Lo cierras y abres otro nuevo cada vez.</button>
+    <button class="opt">Borras el repositorio y empiezas de cero.</button>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="mod" id="proyecto" data-title="Proyecto final: tu web">
+  <div class="kicker">Módulo 10 · Proyecto final</div>
+  <h1>Proyecto final: publica tu propia web gratis</h1>
+  <p class="lead">Juntamos todo lo aprendido (repositorio, commits, ramas, push y PR/MR) y el resultado es una página web real en internet con <strong>GitHub Pages</strong> o <strong>GitLab Pages</strong>.</p>
+
+  <h2>Lo que vas a construir</h2>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub Pages</div><div class="vb"><p>Tu web en <code>https://tu-usuario.github.io/mi-web/</code>. Se activa con dos clics en la configuración.</p></div></div>
+    <div class="v only-gl"><div class="vh">GitLab Pages</div><div class="vb"><p>Tu web en <code>https://tu-usuario.gitlab.io/mi-web/</code> (o una dirección única que GitLab te asigna). Se activa con un pequeño archivo de configuración: <code>.gitlab-ci.yml</code>.</p></div></div>
+  </div>
+
+  <h2>Paso 1 · Crear el proyecto local (igual en las dos)</h2>
+  <pre class="term" data-title="Git Bash">
+$ cd ~/Documents
+$ mkdir mi-web
+$ cd mi-web
+$ git init
+$ code .
+</pre>
+  <p>Crea en VS Code un archivo <code>index.html</code> con este contenido (cámbialo a tu gusto):</p>
+  <pre class="term file" data-title="index.html">
+&lt;!doctype html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;title&gt;Mi web&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 60px auto; padding: 0 16px; line-height: 1.6; }
+    h1 { color: #2f6fde; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;¡Hola! Soy Tu Nombre 👋&lt;/h1&gt;
+  &lt;p&gt;Esta es mi primera web, publicada con Git.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+  <h2>Paso 2 · Primer commit y subida</h2>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+      <p>Crea en la web un repositorio <strong>público</strong> vacío llamado <code>mi-web</code> (en el plan gratuito, Pages exige que sea público).</p>
+<pre class="term" data-title="Git Bash">
+$ git add index.html
+$ git commit -m "Crea la página principal"
+$ git remote add origin https://github.com/tu-usuario/mi-web.git
+$ git push -u origin main
+</pre>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+      <p>Crea en la web un proyecto vacío llamado <code>mi-web</code> (sin README). Puede ser público o privado: Pages funciona en los dos casos.</p>
+<pre class="term" data-title="Git Bash">
+$ git add index.html
+$ git commit -m "Crea la página principal"
+$ git remote add origin https://gitlab.com/tu-usuario/mi-web.git
+$ git push -u origin main
+</pre>
+    </div></div>
+  </div>
+
+  <h2>Paso 3 · Activar Pages</h2>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub Pages</div><div class="vb">
+      <ol class="steps">
+        <li>En el repositorio: <strong>Settings → Pages</strong>.</li>
+        <li>En <em>Build and deployment</em>, Source: <strong>Deploy from a branch</strong>.</li>
+        <li>Branch: <strong>main</strong>, carpeta <strong>/ (root)</strong> → <strong>Save</strong>.</li>
+        <li>Espera uno o dos minutos y recarga: aparecerá el enlace <code>https://tu-usuario.github.io/mi-web/</code>. ¡Tu web está en internet! 🌍</li>
+      </ol>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab Pages</div><div class="vb">
+      <ol class="steps">
+        <li>Crea en la carpeta del proyecto un archivo llamado exactamente <code>.gitlab-ci.yml</code> (con el punto delante) con este contenido:</li>
+      </ol>
+<pre class="term file" data-title=".gitlab-ci.yml">
+pages:
+  image: alpine:latest
+  script:
+    - mkdir -p public
+    - cp index.html public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+</pre>
+      <p style="font-size:.9rem;color:var(--muted)">Le dice a GitLab: "cada vez que se actualice main, copia la web a la carpeta <code>public</code> y publícala".</p>
+<pre class="term" data-title="Git Bash">
+$ git add .gitlab-ci.yml
+$ git commit -m "Configura GitLab Pages"
+$ git push
+</pre>
+      <ol class="steps" style="counter-reset:s 1">
+        <li>En la web: <strong>Build → Pipelines</strong>. Verás el proceso en marcha; espera a que se ponga en verde (<em>passed</em>).</li>
+        <li><strong>Deploy → Pages</strong>: ahí aparece la dirección de tu web. ¡Ya está en internet! 🌍</li>
+      </ol>
+      <p style="font-size:.9rem;color:var(--muted)">Si el pipeline no arranca y pide verificar la cuenta, es la verificación de identidad que comentamos en el módulo 2.</p>
+    </div></div>
+  </div>
+
+  <h2>Paso 4 · Mejora con una rama y un PR/MR</h2>
+  <p>Ahora practica el flujo profesional: añade una sección de aficiones en una rama.</p>
+  <pre class="term" data-title="Git Bash">
+$ git switch -c aficiones
+# Edita index.html y añade antes de &lt;/body&gt;:
+#   &lt;h2&gt;Mis aficiones&lt;/h2&gt;
+#   &lt;ul&gt;&lt;li&gt;Fotografía&lt;/li&gt;&lt;li&gt;Cocina&lt;/li&gt;&lt;/ul&gt;
+$ git diff
+$ git add index.html
+$ git commit -m "Añade sección de aficiones"
+$ git push -u origin aficiones
+</pre>
+  <div class="dual">
+    <div class="v only-gh"><div class="vh">GitHub</div><div class="vb">
+      <ol class="steps">
+        <li>Pulsa <strong>Compare &amp; pull request</strong>, escribe una descripción y <strong>Create pull request</strong>.</li>
+        <li>Revisa la pestaña <strong>Files changed</strong>: verás tus cambios en verde.</li>
+        <li><strong>Merge pull request → Confirm merge</strong>. En un minuto tu web se actualiza sola.</li>
+      </ol>
+    </div></div>
+    <div class="v only-gl"><div class="vh">GitLab</div><div class="vb">
+      <ol class="steps">
+        <li>Pulsa <strong>Create merge request</strong>, escribe una descripción y créalo.</li>
+        <li>Revisa la pestaña <strong>Changes</strong>: verás tus cambios en verde.</li>
+        <li>Pulsa <strong>Merge</strong>. Se lanzará un pipeline nuevo y, al terminar, tu web estará actualizada.</li>
+      </ol>
+    </div></div>
+  </div>
+  <p>De vuelta en tu ordenador (igual en las dos):</p>
+  <pre class="term" data-title="Git Bash">
+$ git switch main
+$ git pull
+$ git branch -d aficiones
+$ git log --oneline --graph
+</pre>
+
+  <h2>✅ Lista de comprobación final</h2>
+  <div class="card">
+    <ul class="missions" id="final-checklist">
+      <li data-k="f1"><span class="chk"></span><span class="mt"><span class="mtx">He creado un repositorio local con <code>git init</code></span></span></li>
+      <li data-k="f2"><span class="chk"></span><span class="mt"><span class="mtx">He hecho al menos dos commits con mensajes claros</span></span></li>
+      <li data-k="f3"><span class="chk"></span><span class="mt"><span class="mtx">He subido el proyecto a GitHub o GitLab con <code>git push</code></span></span></li>
+      <li data-k="f4"><span class="chk"></span><span class="mt"><span class="mtx">Mi web se ve en <code>tu-usuario.github.io/mi-web</code> o <code>tu-usuario.gitlab.io/mi-web</code></span></span></li>
+      <li data-k="f5"><span class="chk"></span><span class="mt"><span class="mtx">He trabajado en una rama y la he fusionado con un pull request o merge request</span></span></li>
+      <li data-k="f6"><span class="chk"></span><span class="mt"><span class="mtx">He hecho <code>git pull</code> para traer el merge a mi ordenador</span></span></li>
+    </ul>
+  </div>
+  <p style="color:var(--muted);font-size:.9rem">Toca cada punto para marcarlo.</p>
+
+  <h2>Retos extra (opcionales)</h2>
+  <div class="grid">
+    <div class="card"><h4>🧩 Reto 1</h4><p>Añade un <code>README.md</code> al proyecto explicando qué es, con un enlace a la web publicada.</p></div>
+    <div class="card"><h4>💥 Reto 2</h4><p>Provoca un conflicto a propósito: edita la misma línea en la web y en tu ordenador, y resuélvelo con <code>git pull</code>.</p></div>
+    <div class="card"><h4>👥 Reto 3</h4><p>Invita a un amigo a tu repositorio y que te haga un PR/MR.<br><span class="ptag gh">GitHub</span> Settings → Collaborators<br><span class="ptag gl">GitLab</span> Manage → Members</p></div>
+    <div class="card"><h4>🎯 Reto 4</h4><p>Crea un issue "Añadir página de contacto" y ciérralo desde un commit con <code>Closes #1</code>.</p></div>
+    <div class="card"><h4>🔁 Reto 5</h4><p>Sube el mismo proyecto a <strong>las dos</strong> plataformas: <code>git remote add gitlab URL</code> y <code>git push gitlab main</code>. Un repositorio puede tener varios remotos.</p></div>
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section class="mod" id="chuleta" data-title="Chuleta y glosario">
+  <div class="kicker">Módulo 11 · Referencia</div>
+  <h1>Chuleta de comandos y glosario</h1>
+  <p class="lead">Guárdala en favoritos. Es lo que vas a consultar las primeras semanas.</p>
+
+  <h2>Chuleta de Git (igual en GitHub y GitLab)</h2>
+  <div class="table-wrap"><table>
+    <tr><th colspan="2">⚙️ Configuración (una vez)</th></tr>
+    <tr><td><code>git config --global user.name "Nombre"</code></td><td>Tu nombre para los commits</td></tr>
+    <tr><td><code>git config --global user.email "email"</code></td><td>Tu email para los commits</td></tr>
+    <tr><th colspan="2">🚀 Empezar</th></tr>
+    <tr><td><code>git init</code></td><td>Convierte la carpeta actual en repositorio</td></tr>
+    <tr><td><code>git clone URL</code></td><td>Descarga un repositorio existente</td></tr>
+    <tr><th colspan="2">💾 Día a día</th></tr>
+    <tr><td><code>git status</code></td><td>¿Cómo están las cosas? (úsalo mucho)</td></tr>
+    <tr><td><code>git add archivo</code> / <code>git add .</code></td><td>Prepara un archivo / todos</td></tr>
+    <tr><td><code>git commit -m "mensaje"</code></td><td>Guarda una versión</td></tr>
+    <tr><td><code>git diff</code> / <code>git diff --staged</code></td><td>Cambios sin preparar / preparados</td></tr>
+    <tr><td><code>git log --oneline --graph --all</code></td><td>Historial resumido con ramas</td></tr>
+    <tr><th colspan="2">🌿 Ramas</th></tr>
+    <tr><td><code>git branch</code></td><td>Lista ramas</td></tr>
+    <tr><td><code>git switch -c nombre</code></td><td>Crea una rama y se cambia a ella</td></tr>
+    <tr><td><code>git switch nombre</code></td><td>Cambia de rama</td></tr>
+    <tr><td><code>git merge nombre</code></td><td>Fusiona esa rama en la actual</td></tr>
+    <tr><td><code>git branch -d nombre</code></td><td>Borra una rama ya fusionada</td></tr>
+    <tr><th colspan="2">☁️ Remoto</th></tr>
+    <tr class="only-gh"><td><code>git remote add origin https://github.com/usuario/repo.git</code></td><td><span class="ptag gh">GitHub</span> Conecta con el repositorio</td></tr>
+    <tr class="only-gl"><td><code>git remote add origin https://gitlab.com/usuario/repo.git</code></td><td><span class="ptag gl">GitLab</span> Conecta con el proyecto</td></tr>
+    <tr><td><code>git remote -v</code></td><td>Muestra los remotos configurados</td></tr>
+    <tr><td><code>git push -u origin main</code></td><td>Primera subida de una rama</td></tr>
+    <tr><td><code>git push</code></td><td>Sube tus commits</td></tr>
+    <tr><td><code>git pull</code></td><td>Trae y fusiona los cambios del remoto</td></tr>
+    <tr><th colspan="2">⏪ Deshacer</th></tr>
+    <tr><td><code>git restore archivo</code></td><td>Descarta cambios no guardados</td></tr>
+    <tr><td><code>git restore --staged archivo</code></td><td>Saca un archivo del staging</td></tr>
+    <tr><td><code>git commit --amend -m "..."</code></td><td>Corrige el último commit (si no está subido)</td></tr>
+    <tr><td><code>git revert hash</code></td><td>Anula un commit creando otro nuevo</td></tr>
+    <tr><td><code>git stash</code> / <code>git stash pop</code></td><td>Aparca cambios / los recupera</td></tr>
+    <tr><td><code>git merge --abort</code></td><td>Cancela una fusión con conflictos</td></tr>
+  </table></div>
+
+  <h2>Dónde está cada cosa en la web</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Quiero…</th><th>GitHub</th><th>GitLab</th></tr>
+    <tr><td>Crear un repositorio</td><td>+ → New repository</td><td>+ → New project/repository → Create blank project</td></tr>
+    <tr><td>Copiar la URL para clonar</td><td>Botón verde &lt;&gt; Code</td><td>Botón azul Code</td></tr>
+    <tr><td>Ver el historial</td><td>"N commits" (icono de reloj)</td><td>Code → Commits</td></tr>
+    <tr><td>Proponer cambios</td><td>Pull request (#15)</td><td>Merge request (!15)</td></tr>
+    <tr><td>Tareas y errores</td><td>Issues</td><td>Plan → Issues</td></tr>
+    <tr><td>Automatizaciones</td><td>Actions (<code>.github/workflows/</code>)</td><td>Build → Pipelines (<code>.gitlab-ci.yml</code>)</td></tr>
+    <tr><td>Publicar una web</td><td>Settings → Pages</td><td><code>.gitlab-ci.yml</code> + Deploy → Pages</td></tr>
+    <tr><td>Invitar colaboradores</td><td>Settings → Collaborators</td><td>Manage → Members</td></tr>
+    <tr><td>Token de acceso</td><td>Settings → Developer settings → Tokens</td><td>Edit profile → Access tokens</td></tr>
+  </table></div>
+
+  <h2>Rutina diaria recomendada</h2>
+  <pre class="term" data-title="Git Bash · cada día">
+$ git switch main
+$ git pull
+$ git switch -c mi-tarea
+# ...trabajas...
+$ git status
+$ git add .
+$ git commit -m "Describe qué has hecho"
+$ git push -u origin mi-tarea
+# → abre un pull request (GitHub) o merge request (GitLab)
+</pre>
+
+  <h2>Glosario</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Término</th><th>Definición</th></tr>
+    <tr><td>Branch (rama)</td><td>Línea de desarrollo independiente. La principal es <code>main</code> (en proyectos antiguos, <code>master</code>).</td></tr>
+    <tr><td>CI/CD</td><td>Automatizaciones que se ejecutan al subir cambios: pruebas, publicar una web… GitHub Actions / GitLab CI.</td></tr>
+    <tr><td>Clone</td><td>Copia local completa de un repositorio remoto.</td></tr>
+    <tr><td>Commit</td><td>Instantánea guardada del proyecto con mensaje, autor y fecha.</td></tr>
+    <tr><td>Conflict (conflicto)</td><td>Cuando Git no puede fusionar automáticamente porque dos cambios afectan a las mismas líneas.</td></tr>
+    <tr><td>Detached HEAD</td><td>Estar situado en un commit concreto en vez de en una rama.</td></tr>
+    <tr><td>Fetch</td><td>Descargar cambios del remoto sin fusionarlos (<code>pull</code> = <code>fetch</code> + <code>merge</code>).</td></tr>
+    <tr><td>Fork</td><td>Copia de un repositorio ajeno en tu cuenta de GitHub o GitLab.</td></tr>
+    <tr><td>.gitignore</td><td>Archivo con la lista de cosas que Git debe ignorar.</td></tr>
+    <tr><td>Hash</td><td>Identificador único de un commit (ej. <code>a3f9c21</code>).</td></tr>
+    <tr><td>HEAD</td><td>Puntero a "donde estás ahora": normalmente, el último commit de la rama actual.</td></tr>
+    <tr><td>Issue</td><td>Ficha para reportar errores, ideas o tareas.</td></tr>
+    <tr><td>Merge</td><td>Unir los cambios de una rama en otra.</td></tr>
+    <tr><td>Merge request (MR)</td><td>Nombre en GitLab de la propuesta para fusionar una rama, con revisión y comentarios.</td></tr>
+    <tr><td>Namespace</td><td>En GitLab, el usuario o grupo al que pertenece un proyecto (la parte <code>tu-usuario</code> de la URL).</td></tr>
+    <tr><td>Origin</td><td>Nombre por defecto del repositorio remoto.</td></tr>
+    <tr><td>Pipeline</td><td>En GitLab, una ejecución de las automatizaciones definidas en <code>.gitlab-ci.yml</code>.</td></tr>
+    <tr><td>Pull request (PR)</td><td>Nombre en GitHub de la propuesta para fusionar una rama, con revisión y comentarios.</td></tr>
+    <tr><td>Push / Pull</td><td>Subir commits al remoto / traerlos del remoto.</td></tr>
+    <tr><td>Repository (repo)</td><td>Proyecto controlado por Git, con todo su historial. En GitLab se le llama <em>proyecto</em>.</td></tr>
+    <tr><td>Staging area</td><td>Zona intermedia donde preparas lo que entrará en el próximo commit.</td></tr>
+    <tr><td>Working directory</td><td>Los archivos de tu carpeta tal y como los ves.</td></tr>
+  </table></div>
+
+  <h2>¿Y ahora qué?</h2>
+  <div class="grid">
+    <div class="card"><h4>📘 Pro Git (libro gratis)</h4><p><a href="https://git-scm.com/book/es/v2" target="_blank" rel="noopener">git-scm.com/book/es/v2</a> — el libro oficial de Git, en español.</p></div>
+    <div class="card"><h4>🌳 Learn Git Branching</h4><p><a href="https://learngitbranching.js.org/?locale=es_ES" target="_blank" rel="noopener">learngitbranching.js.org</a> — juego visual para dominar las ramas.</p></div>
+    <div class="card only-gh"><h4><span class="ptag gh">GitHub</span> Docs y Skills</h4><p><a href="https://docs.github.com/es" target="_blank" rel="noopener">docs.github.com/es</a> y <a href="https://skills.github.com" target="_blank" rel="noopener">skills.github.com</a> (cursos interactivos).</p></div>
+    <div class="card only-gl"><h4><span class="ptag gl">GitLab</span> Docs</h4><p><a href="https://docs.gitlab.com" target="_blank" rel="noopener">docs.gitlab.com</a> — documentación oficial, con tutoriales para empezar.</p></div>
+  </div>
+  <div class="note tip"><strong>🎉 ¡Has terminado el curso!</strong>Lo más importante ahora es <strong>usarlo</strong>: mete en Git el próximo proyecto que empieces, aunque sea pequeño. En dos semanas los comandos te saldrán solos, y podrás moverte entre GitHub y GitLab sin esfuerzo.</div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const root=document.documentElement;
+
+/* ---------- Theme ---------- */
+const savedTheme=store.get('gc-theme',null); if(savedTheme)root.dataset.theme=savedTheme;
+$('#themeBtn').onclick=()=>{const cur=root.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const nx=cur==='dark'?'light':'dark';root.dataset.theme=nx;store.set('gc-theme',nx)};
+
+/* ---------- Platform selector ---------- */
+function setPlat(p){root.dataset.plat=p;store.set('gc-plat',p);$$('#platSeg button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));if(window.__simRender)window.__simRender();}
+$$('#platSeg button').forEach(b=>b.onclick=()=>setPlat(b.dataset.p));
+setPlat(store.get('gc-plat','both'));
+
+/* ---------- Mobile drawer ---------- */
+const menuBtn=$('#menuBtn');
+function drawer(open){document.body.classList.toggle('nav-open',open);menuBtn.setAttribute('aria-expanded',open);}
+menuBtn.onclick=()=>drawer(!document.body.classList.contains('nav-open'));
+$('#scrim').onclick=()=>drawer(false);
+addEventListener('keydown',e=>{if(e.key==='Escape')drawer(false)});
+
+/* ---------- Navigation & progress ---------- */
+const mods=$$('section.mod'); let done=store.get('gc-done',{});
+const nav=$('#nav');
+mods.forEach((m,i)=>{const li=document.createElement('li');li.innerHTML=`<a href="#${m.id}" data-id="${m.id}"><span class="num">${i+1}</span><span class="lbl">${m.dataset.title}</span></a>`;nav.append(li);
+  const mn=document.createElement('div');mn.className='modnav';
+  const prev=mods[i-1],next=mods[i+1];
+  mn.innerHTML=(prev?`<a class="btn" href="#${prev.id}">← ${prev.dataset.title}</a>`:'<span></span>')+
+    `<button class="btn markdone" data-id="${m.id}"></button>`+
+    (next?`<a class="btn primary" href="#${next.id}">${next.dataset.title} →</a>`:'<span></span>');
+  m.append(mn);});
+nav.addEventListener('click',e=>{if(e.target.closest('a'))drawer(false)});
+function refreshProgress(){const n=mods.filter(m=>done[m.id]).length;const pct=(n/mods.length*100)+'%';$('#pbar').style.width=pct;$('#tbBar').style.width=pct;
+  $('#plabel').textContent=`${n} de ${mods.length} módulos completados`;$('#tbProg').textContent=`${n} de ${mods.length} completados`;
+  $$('nav a').forEach(a=>a.classList.toggle('done',!!done[a.dataset.id]));
+  $$('.markdone').forEach(b=>{const d=!!done[b.dataset.id];b.className='btn markdone'+(d?' ok':'');b.textContent=d?'✓ Completado':'Marcar como completado'});}
+document.addEventListener('click',e=>{const b=e.target.closest('.markdone');if(!b)return;done[b.dataset.id]=!done[b.dataset.id];store.set('gc-done',done);refreshProgress();});
+function show(){let id=location.hash.slice(1);if(!mods.some(m=>m.id===id))id=store.get('gc-last',mods[0].id);if(!mods.some(m=>m.id===id))id=mods[0].id;
+  drawer(false);mods.forEach(m=>m.hidden=m.id!==id);$$('nav a').forEach(a=>a.classList.toggle('active',a.dataset.id===id));store.set('gc-last',id);window.scrollTo(0,0);
+  const i=mods.findIndex(m=>m.id===id);$('#tbTitle').textContent=`${i+1}. ${mods[i].dataset.title}`;
+  if(id==='lab'&&innerWidth>820)setTimeout(()=>$('#sim-in').focus({preventScroll:true}),50);}
+addEventListener('hashchange',show); refreshProgress(); show();
+
+/* ---------- Responsive tables: labels for stacked layout ---------- */
+$$('table').forEach(t=>{let labels=null;[...t.rows].forEach(r=>{const cells=[...r.cells];
+  if(cells.every(c=>c.tagName==='TH')){if(cells.length>1){r.classList.add('hd');labels=cells.map(c=>c.textContent.trim());}else r.classList.add('sec');}
+  else if(labels)cells.forEach((c,i)=>{if(labels[i])c.dataset.label=labels[i];});});});
+
+/* ---------- Terminal blocks ---------- */
+function copyText(t,btn){const ok=()=>{btn.textContent='¡Copiado!';setTimeout(()=>btn.textContent='Copiar',1400)};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,()=>fallback());else fallback();
+  function fallback(){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();try{document.execCommand('copy');ok()}catch(e){}ta.remove()}}
+$$('pre.term').forEach(pre=>{
+  const isFile=pre.classList.contains('file');
+  const raw=pre.textContent.replace(/^\n/,'').replace(/\s+$/,'');
+  const wrap=document.createElement('div');wrap.className='termbox'+(isFile?' file':'');
+  const bar=document.createElement('div');bar.className='termbar';
+  bar.innerHTML=`<span class="dots"><i></i><i></i><i></i></span><span class="t"></span>`;bar.querySelector('.t').textContent=pre.dataset.title||'Terminal';
+  const btn=document.createElement('button');btn.className='copy';btn.textContent='Copiar';bar.append(btn);
+  const body=document.createElement('pre');const cmds=[];
+  raw.split('\n').forEach(l=>{const s=document.createElement('span');
+    if(!isFile&&l.startsWith('$ ')){s.className='ln cmd';const p=document.createElement('span');p.className='pr';p.textContent='$ ';s.append(p,l.slice(2));cmds.push(l.slice(2));}
+    else if(!isFile&&l.startsWith('# ')){s.className='ln com';s.textContent=l;}
+    else{s.className=isFile?'ln':'ln out';s.textContent=l;}
+    body.append(s,'\n');});
+  btn.onclick=()=>copyText(isFile?raw:cmds.join('\n'),btn);
+  if(!isFile&&!cmds.length)btn.remove();
+  wrap.append(bar,body);pre.replaceWith(wrap);});
+
+/* ---------- Quizzes ---------- */
+$$('.quiz').forEach(q=>{const ans=+q.dataset.answer;const opts=[...q.querySelectorAll('.opt')];const fb=document.createElement('p');fb.className='fb';q.append(fb);
+  opts.forEach((o,i)=>o.onclick=()=>{opts.forEach(x=>x.classList.remove('wrong'));
+    if(i===ans){o.classList.add('right');opts.forEach(x=>x.disabled=true);fb.innerHTML='✅ <strong>¡Correcto!</strong> '+q.dataset.explain;}
+    else{o.classList.add('wrong');fb.innerHTML='❌ No exactamente. Inténtalo otra vez.';}});});
+
+/* ---------- Final checklist ---------- */
+const fc=store.get('gc-final',{});
+$$('#final-checklist li').forEach(li=>{const k=li.dataset.k;const upd=()=>{li.classList.toggle('ok',!!fc[k]);li.querySelector('.chk').textContent=fc[k]?'✓':''};upd();li.style.cursor='pointer';
+  li.onclick=()=>{fc[k]=!fc[k];store.set('gc-final',fc);upd()};});
+
+/* =====================================================================
+   GIT SIMULATOR
+   ===================================================================== */
+const out=$('#sim-out'), inp=$('#sim-in');
+const URL_GH='https://github.com/tu-usuario/mi-proyecto.git', URL_GL='https://gitlab.com/tu-usuario/mi-proyecto.git';
+const urlDef=()=>root.dataset.plat==='gl'?URL_GL:URL_GH;
+let S;
+function reset(){S={init:false,files:{},index:{},commits:{},seq:0,branches:{},head:'main',remote:null,remoteBr:{},upstream:{},merging:null,ever:{}};}
+const hid=()=>Math.floor(Math.random()*0xfffffff).toString(16).padStart(7,'0');
+const headId=()=>S.branches[S.head]||null;
+const tree=id=>id?S.commits[id].tree:{};
+const has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+const keys=o=>Object.keys(o).sort();
+const union=(...os)=>[...new Set(os.flatMap(o=>Object.keys(o)))].sort();
+function ancestors(id){const set=new Set(),st=[id];while(st.length){const c=st.pop();if(!c||set.has(c))continue;set.add(c);const k=S.commits[c];st.push(k.parent,k.parent2);}return set;}
+function lca(a,b){const A=ancestors(a);let best=null;for(const c of ancestors(b)){if(A.has(c)&&(!best||S.commits[c].seq>S.commits[best].seq))best=c;}return best;}
+function print(t,cls){String(t).split('\n').forEach(l=>{const d=document.createElement('div');if(cls)d.className=cls;d.textContent=l||'\u00a0';out.append(d)});out.scrollTop=out.scrollHeight;}
+const hint=t=>print('💡 '+t,'hint');
+const remoteName=()=>!S.remote?'el remoto':S.remote.includes('gitlab')?'GitLab':S.remote.includes('github')?'GitHub':'el remoto';
+function changes(){const H=tree(headId()),staged=[],unstaged=[],untracked=[],conf=S.merging&&S.merging.conflicts?S.merging.conflicts:new Set();
+  for(const f of union(H,S.index)){if(conf.has(f))continue;if(S.index[f]!==H[f])staged.push([!has(H,f)?'new file':!has(S.index,f)?'deleted':'modified',f]);}
+  for(const f of keys(S.index)){if(conf.has(f))continue;if(!has(S.files,f))unstaged.push(['deleted',f]);else if(S.files[f]!==S.index[f])unstaged.push(['modified',f]);}
+  for(const f of keys(S.files))if(!has(S.index,f))untracked.push(f);
+  return{staged,unstaged,untracked,conf:[...conf]};}
+const dirty=()=>{const c=changes();return c.staged.length+c.unstaged.length>0};
+function applyTree(T){for(const f of keys(S.index))delete S.files[f];for(const f in T)S.files[f]=T[f];S.index={...T};}
+function tokenize(s){const r=[];const re=/"([^"]*)"|'([^']*)'|(\S+)/g;let m;while((m=re.exec(s)))r.push(m[1]!==undefined?m[1]:m[2]!==undefined?m[2]:m[3]);return r;}
+function refs(id){const r=[];if(headId()===id)r.push({t:'HEAD -> '+S.head,c:'head'});for(const b of keys(S.branches))if(S.branches[b]===id&&b!==S.head)r.push({t:b,c:''});for(const b of keys(S.remoteBr))if(S.remoteBr[b]===id)r.push({t:'origin/'+b,c:'remote'});return r;}
+function makeCommit(msg,author){const parent=headId();const id=hid();const seq=++S.seq;const m=S.merging;
+  S.commits[id]={id,msg,parent,parent2:m?m.theirs:null,tree:{...S.index},seq,branch:S.head,author:author||'Tú',time:Date.now(),conflict:!!(m&&m.hadConflict)};
+  S.branches[S.head]=id;S.merging=null;return id;}
+function aheadBehind(br){const l=S.branches[br],r=S.remoteBr[br];if(!l||!r)return null;const A=ancestors(l),B=ancestors(r);let ahead=0,behind=0;A.forEach(c=>{if(!B.has(c))ahead++});B.forEach(c=>{if(!A.has(c))behind++});return{ahead,behind};}
+
+const shell={
+  help(){print(`Comandos del simulador:
+  Archivos:  ls · cat <archivo> · touch <archivo> · rm <archivo>
+             echo "texto" > archivo    (reemplaza contenido)
+             echo "texto" >> archivo   (añade una línea)
+  Git:       git init · git status · git add <archivo>|. · git commit -m "msg"
+             git commit --amend -m "msg" · git log [--oneline] [--all]
+             git diff [--staged] · git restore [--staged] <archivo>
+             git branch [nombre] · git branch -d <nombre>
+             git switch [-c] <rama> · git checkout [-b] <rama>
+             git merge <rama> · git merge --abort
+             git remote add origin <url> · git remote -v
+             git push [-u origin <rama>] · git pull · git fetch
+  Remoto:    vale una URL de GitHub o de GitLab
+  Otros:     clear · reset (reinicia el simulador)`,'dim');},
+  clear(){out.innerHTML='';},
+  reset(){reset();missions.forEach(m=>m.was=false);out.innerHTML='';welcome();},
+  ls(){const k=keys(S.files);print(k.length?k.join('  '):'(carpeta vacía)',k.length?'':'dim');},
+  cat(a){const f=a[0];if(!f)return print('cat: falta el nombre del archivo','err');if(!has(S.files,f))return print(`cat: ${f}: No such file or directory`,'err');print(S.files[f]||'');},
+  touch(a){if(!a[0])return print('touch: falta el nombre del archivo','err');a.forEach(f=>{if(!has(S.files,f))S.files[f]='';});},
+  rm(a){const f=a.filter(x=>!x.startsWith('-'))[0];if(!f)return print('rm: falta el nombre del archivo','err');if(!has(S.files,f))return print(`rm: cannot remove '${f}': No such file or directory`,'err');delete S.files[f];},
+  pwd(){print('/c/Users/tu/mi-proyecto');},
+  cd(){hint('En el simulador todo ocurre en una sola carpeta: mi-proyecto. En tu PC, cd sirve para moverte entre carpetas.');},
+  mkdir(){hint('El simulador trabaja en una sola carpeta (mi-proyecto). En tu PC, mkdir crea carpetas.');},
+  code(){hint('Aquí no hay editor: usa  echo "texto" > archivo  para escribir y  cat archivo  para leer.');},
+};
+shell.notepad=shell.nano=shell.vim=shell.code;shell.dir=shell.ls;shell.cls=shell.clear;shell.type=shell.cat;
+
+function echo(line){const m=line.match(/^echo\s+(?:"([^"]*)"|'([^']*)'|(.*?))\s*(>>?)\s*(\S+)\s*$/);
+  if(!m){const t=line.replace(/^echo\s*/,'').replace(/^["']|["']$/g,'');return print(t);}
+  const text=m[1]!==undefined?m[1]:m[2]!==undefined?m[2]:m[3];const f=m[5];
+  if(m[4]==='>>'&&has(S.files,f)&&S.files[f]!=='')S.files[f]+='\n'+text;else S.files[f]=text;}
+
+function lineDiff(a,b){const A=a===undefined||a===''?[]:a.split('\n'),B=b===undefined||b===''?[]:b.split('\n');const n=A.length,m=B.length;
+  const dp=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)dp[i][j]=A[i]===B[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  const r=[];let i=0,j=0;while(i<n&&j<m){if(A[i]===B[j]){r.push([' ',A[i]]);i++;j++}else if(dp[i+1][j]>=dp[i][j+1])r.push(['-',A[i++]]);else r.push(['+',B[j++]]);}
+  while(i<n)r.push(['-',A[i++]]);while(j<m)r.push(['+',B[j++]]);return r;}
+
+function doMerge(theirs,label){const ours=headId();
+  if(S.merging)return print('error: Merging is not possible because you have unmerged files.','err');
+  if(dirty())return print('error: Your local changes would be overwritten by merge.\nPlease commit your changes or stash them before you merge.\nAborting','err');
+  if(!ours){S.branches[S.head]=theirs;applyTree(tree(theirs));return print('Fast-forward');}
+  if(theirs===ours||ancestors(ours).has(theirs))return print('Already up to date.');
+  if(ancestors(theirs).has(ours)){print(`Updating ${ours}..${theirs}\nFast-forward`);const O=tree(ours),T=tree(theirs);union(O,T).forEach(f=>{if(O[f]!==T[f])print(` ${f} | ${!has(T,f)?'deleted':!has(O,f)?'new':'changed'}`,'dim')});applyTree(T);S.branches[S.head]=theirs;return;}
+  const B=tree(lca(ours,theirs)),O=tree(ours),T=tree(theirs),R={},conf=[];
+  for(const f of union(B,O,T)){const b=B[f],o=O[f],t=T[f];let r;
+    if(o===t)r=o;else if(o===b)r=t;else if(t===b)r=o;else{conf.push(f);continue;}
+    if(r!==undefined)R[f]=r;}
+  if(!conf.length){applyTree(R);S.merging={theirs,name:label};const id=makeCommit(`Merge branch '${label}' into ${S.head}`);print(`Merge made by the 'ort' strategy.`);hint(`Git ha creado automáticamente un commit de fusión (${id}). En tu PC se abriría el editor para confirmar el mensaje.`);return;}
+  applyTree(R);
+  conf.forEach(f=>{S.files[f]=`<<<<<<< HEAD\n${O[f]||''}\n=======\n${T[f]||''}\n>>>>>>> ${label}`;S.index[f]=O[f]||'';print(`Auto-merging ${f}`);print(`CONFLICT (content): Merge conflict in ${f}`,'err');});
+  print('Automatic merge failed; fix conflicts and then commit the result.','err');
+  S.merging={theirs,name:label,conflicts:new Set(conf),hadConflict:true};
+  hint(`Mira el archivo con  cat ${conf[0]} . Escribe la versión final con  echo "..." > ${conf[0]} , luego  git add ${conf[0]}  y  git commit -m "Resuelve conflicto".`);}
+
+function resolveRef(name){if(has(S.branches,name)&&S.branches[name])return S.branches[name];if(name.startsWith('origin/')&&S.remoteBr[name.slice(7)])return S.remoteBr[name.slice(7)];if(S.commits[name])return name;return null;}
+
+const git={
+  init(){if(S.init)return print('Reinitialized existing Git repository in C:/Users/tu/mi-proyecto/.git/');S.init=true;print('Initialized empty Git repository in C:/Users/tu/mi-proyecto/.git/');},
+  '--version'(){print('git version 2.47.1.windows.1');},
+  config(){hint('Configuración guardada (en el simulador no hace falta).');},
+  clone(){hint('En tu PC: git clone URL descarga un repositorio de GitHub o GitLab. En el simulador ya estás dentro de mi-proyecto: empieza con git init.');},
+  stash(){hint('git stash no está disponible en el simulador. En tu PC aparca los cambios sin hacer commit; git stash pop los recupera.');},
+  status(){const c=changes();print(`On branch ${S.head}`);
+    const ab=S.upstream[S.head]?aheadBehind(S.head):null;
+    if(ab){if(!ab.ahead&&!ab.behind)print(`Your branch is up to date with 'origin/${S.head}'.`);else if(ab.ahead&&!ab.behind)print(`Your branch is ahead of 'origin/${S.head}' by ${ab.ahead} commit${ab.ahead>1?'s':''}.\n  (use "git push" to publish your local commits)`);else if(!ab.ahead)print(`Your branch is behind 'origin/${S.head}' by ${ab.behind} commit${ab.behind>1?'s':''}, and can be fast-forwarded.\n  (use "git pull" to update your local branch)`);else print(`Your branch and 'origin/${S.head}' have diverged.\n  (use "git pull" to merge the remote branch into yours)`);}
+    if(!headId())print('\nNo commits yet');
+    if(S.merging&&c.conf.length)print('\nYou have unmerged paths.\n  (fix conflicts and run "git commit")\n  (use "git merge --abort" to abort the merge)','yel');
+    else if(S.merging)print('\nAll conflicts fixed but you are still merging.\n  (use "git commit" to conclude merge)','yel');
+    if(c.staged.length){print('\nChanges to be committed:\n  (use "git restore --staged <file>..." to unstage)');c.staged.forEach(([k,f])=>print(`        ${(k+':').padEnd(12)}${f}`,'add'));}
+    if(c.conf.length){print('\nUnmerged paths:\n  (use "git add <file>..." to mark resolution)');c.conf.forEach(f=>print(`        both modified:   ${f}`,'del'));}
+    if(c.unstaged.length){print('\nChanges not staged for commit:\n  (use "git add <file>..." to update what will be committed)\n  (use "git restore <file>..." to discard changes in working directory)');c.unstaged.forEach(([k,f])=>print(`        ${(k+':').padEnd(12)}${f}`,'del'));}
+    if(c.untracked.length){print('\nUntracked files:\n  (use "git add <file>..." to include in what will be committed)');c.untracked.forEach(f=>print('        '+f,'del'));}
+    if(!c.staged.length&&!c.unstaged.length&&!c.untracked.length&&!c.conf.length&&!S.merging)print(headId()?'\nnothing to commit, working tree clean':'\nnothing to commit (create/copy files and use "git add" to track)');
+    else if(!c.staged.length&&!S.merging)print(c.unstaged.length?'\nno changes added to commit (use "git add" and/or "git commit -a")':'\nnothing added to commit but untracked files present (use "git add" to track)');},
+  add(a){const paths=a.filter(x=>!x.startsWith('-')||x==='-A');if(!paths.length)return print('Nothing specified, nothing added.\nhint: Maybe you wanted to say \'git add .\'?','err');
+    const conf=S.merging&&S.merging.conflicts;
+    for(const p of paths){
+      if(p==='.'||p==='-A'||p==='--all'||p==='*'){union(S.files,S.index).forEach(f=>{if(has(S.files,f))S.index[f]=S.files[f];else delete S.index[f];if(conf)conf.delete(f);});continue;}
+      if(has(S.files,p)){S.index[p]=S.files[p];if(conf){if(conf.has(p)&&S.files[p].includes('<<<<<<<'))hint(`Ojo: ${p} todavía contiene marcas de conflicto (<<<<<<<). Git te deja añadirlo, pero lo normal es limpiarlas antes.`);conf.delete(p);}}
+      else if(has(S.index,p)){delete S.index[p];}
+      else return print(`fatal: pathspec '${p}' did not match any files`,'err');}},
+  commit(a){let msg=null,all=false,amend=false;
+    for(let i=0;i<a.length;i++){const x=a[i];if(x==='-m')msg=a[++i];else if(x==='-am'||x==='-ma'){all=true;msg=a[++i];}else if(x==='-a')all=true;else if(x==='--amend')amend=true;}
+    if(S.merging&&S.merging.conflicts&&S.merging.conflicts.size)return print('error: Committing is not possible because you have unmerged files.\nhint: Fix them up in the work tree, and then use \'git add <file>\'\nhint: as appropriate to mark resolution and make a commit.\nfatal: Exiting because of an unresolved conflict.','err');
+    if(all)keys(S.index).forEach(f=>{if(has(S.files,f))S.index[f]=S.files[f];else delete S.index[f];});
+    if(amend){const h=headId();if(!h)return print('fatal: You have nothing to amend.','err');const old=S.commits[h];const id=hid();
+      S.commits[id]={...old,id,msg:msg||old.msg,tree:{...S.index},time:Date.now()};S.branches[S.head]=id;delete S.commits[h];
+      Object.values(S.commits).forEach(c=>{if(c.parent===h)c.parent=id;});
+      print(`[${S.head} ${id}] ${msg||old.msg}`);hint('--amend sustituye el último commit por uno nuevo (fíjate: cambia el hash). No lo hagas con commits ya subidos.');return;}
+    if(msg===null||msg===undefined){if(S.merging)msg=`Merge branch '${S.merging.name}' into ${S.head}`;else return hint('En el simulador escribe el mensaje así: git commit -m "Tu mensaje". (En tu PC, sin -m se abriría el editor).');}
+    if(!msg.trim())return print('Aborting commit due to empty commit message.','err');
+    const c=changes();
+    if(!c.staged.length&&!S.merging){if(c.unstaged.length)print('no changes added to commit (use "git add" and/or "git commit -a")','err');else if(c.untracked.length)print('nothing added to commit but untracked files present (use "git add" to track)','err');else print('nothing to commit, working tree clean','err');return;}
+    const rootC=!headId();const id=makeCommit(msg);
+    print(`[${S.head}${rootC?' (root-commit)':''} ${id}] ${msg}`);
+    if(c.staged.length)print(` ${c.staged.length} file${c.staged.length>1?'s':''} changed`);
+    c.staged.forEach(([k,f])=>{if(k==='new file')print(` create mode 100644 ${f}`,'dim');if(k==='deleted')print(` delete mode 100644 ${f}`,'dim');});},
+  log(a){const one=a.includes('--oneline'),all=a.includes('--all');
+    if(!headId()&&!all)return print(`fatal: your current branch '${S.head}' does not have any commits yet`,'err');
+    const set=new Set();(all?[...Object.values(S.branches),...Object.values(S.remoteBr)]:[headId()]).forEach(id=>{if(id)ancestors(id).forEach(c=>set.add(c))});
+    const list=[...set].map(id=>S.commits[id]).sort((x,y)=>y.seq-x.seq);
+    list.forEach(c=>{const r=refs(c.id);const dec=r.length?' ('+r.map(x=>x.t).join(', ')+')':'';
+      if(one){print(`${c.id}${dec} ${c.msg}`,'yel');}
+      else{print(`commit ${c.id}${dec}`,'yel');if(c.parent2)print(`Merge: ${c.parent} ${c.parent2}`);print(`Author: ${c.author==='Tú'?'Tu Nombre <tu-email@ejemplo.com>':c.author+' <ana@ejemplo.com>'}`);print(`Date:   ${new Date(c.time).toLocaleString('es-ES')}`);print('');print('    '+c.msg);print('');}});},
+  diff(a){const st=a.includes('--staged')||a.includes('--cached');const from=st?tree(headId()):S.index,to=st?S.index:S.files;
+    const fs=st?union(from,to):keys(S.index);let any=false;
+    fs.forEach(f=>{if(from[f]===to[f])return;any=true;print(`diff --git a/${f} b/${f}`,'dim');print(`--- ${has(from,f)?'a/'+f:'/dev/null'}\n+++ ${has(to,f)?'b/'+f:'/dev/null'}`,'dim');
+      lineDiff(from[f],to[f]).forEach(([k,l])=>print(k+l,k==='+'?'add':k==='-'?'del':'dim'));});
+    if(!any)hint(st?'No hay cambios en el staging respecto al último commit.':'No hay cambios sin preparar. (Para ver lo ya preparado: git diff --staged)');},
+  restore(a){const staged=a.includes('--staged')||a.includes('-S');const fs=a.filter(x=>!x.startsWith('-'));if(!fs.length)return print('fatal: you must specify path(s) to restore','err');
+    const H=tree(headId());
+    for(const f of fs){if(f==='.'){if(staged)S.index={...H};else keys(S.index).forEach(k=>S.files[k]=S.index[k]);continue;}
+      if(staged){if(has(H,f))S.index[f]=H[f];else if(has(S.index,f))delete S.index[f];else return print(`error: pathspec '${f}' did not match any file(s) known to git`,'err');}
+      else{if(!has(S.index,f))return print(`error: pathspec '${f}' did not match any file(s) known to git`,'err');S.files[f]=S.index[f];}}},
+  branch(a){if(!a.length||a[0]==='-a'||a[0]==='--all'){const b=keys(S.branches).filter(k=>S.branches[k]);b.forEach(k=>print((k===S.head?'* ':'  ')+k,k===S.head?'add':''));if(a.length)keys(S.remoteBr).forEach(k=>print('  remotes/origin/'+k,'del'));if(!b.length)hint('Aún no hay ramas que mostrar: la rama main aparece al hacer el primer commit.');return;}
+    if(a[0]==='-d'||a[0]==='-D'){const n=a[1];if(!n)return print('fatal: branch name required','err');if(!S.branches[n])return print(`error: branch '${n}' not found.`,'err');if(n===S.head)return print(`error: Cannot delete branch '${n}' checked out at 'C:/Users/tu/mi-proyecto'`,'err');
+      if(a[0]==='-d'&&!ancestors(headId()).has(S.branches[n]))return print(`error: The branch '${n}' is not fully merged.\nIf you are sure you want to delete it, run 'git branch -D ${n}'.`,'err');
+      print(`Deleted branch ${n} (was ${S.branches[n]}).`);delete S.branches[n];delete S.upstream[n];return;}
+    const n=a[0];if(!headId())return print(`fatal: not a valid object name: '${S.head}'`,'err');if(S.branches[n])return print(`fatal: a branch named '${n}' already exists`,'err');S.branches[n]=headId();hint(`Rama '${n}' creada, pero sigues en '${S.head}'. Cámbiate con: git switch ${n}`);},
+  switch(a,cmd){let create=false,name;if(['-c','-b','--create'].includes(a[0])){create=true;name=a[1];}else name=a.filter(x=>x!=='--')[0];
+    if(!name)return print(cmd==='checkout'?'usage: git checkout <branch>':'fatal: missing branch or commit argument','err');
+    if(S.merging)return print('error: you need to resolve your current index first','err');
+    if(cmd==='checkout'&&!create&&!has(S.branches,name)&&has(S.index,name)){S.files[name]=S.index[name];return print('Updated 1 path from the index');}
+    if(create){if(S.branches[name])return print(`fatal: a branch named '${name}' already exists`,'err');if(headId())S.branches[name]=headId();S.head=name;return print(`Switched to a new branch '${name}'`);}
+    if(!S.branches[name]){if(S.remoteBr[name]){S.branches[name]=S.remoteBr[name];S.upstream[name]=true;}else return print(cmd==='checkout'?`error: pathspec '${name}' did not match any file(s) known to git`:`fatal: invalid reference: ${name}`,'err');}
+    if(name===S.head)return print(`Already on '${name}'`);
+    const c=changes();const changed=[...c.staged,...c.unstaged].map(x=>x[1]);const T=tree(S.branches[name]),H=tree(headId());const clash=changed.filter(f=>H[f]!==T[f]);
+    if(clash.length)return print(`error: Your local changes to the following files would be overwritten by checkout:\n${clash.map(f=>'        '+f).join('\n')}\nPlease commit your changes or stash them before you switch branches.\nAborting`,'err');
+    const keep={};changed.forEach(f=>keep[f]=[S.files[f],S.index[f]]);
+    applyTree(T);changed.forEach(f=>{const[w,i]=keep[f];if(w===undefined)delete S.files[f];else S.files[f]=w;if(i===undefined)delete S.index[f];else S.index[f]=i;});
+    S.head=name;print(`Switched to branch '${name}'`);},
+  merge(a){if(a[0]==='--abort'){if(!S.merging)return print('fatal: There is no merge to abort (MERGE_HEAD missing).','err');S.merging=null;applyTree(tree(headId()));return print('Fusión cancelada: todo vuelve a como estaba antes del merge.','dim');}
+    const n=a.filter(x=>!x.startsWith('-'))[0];if(!n)return print('fatal: No remote for the current branch.','err');
+    const id=resolveRef(n);if(!id)return print(`merge: ${n} - not something we can merge`,'err');if(n===S.head)return print('Already up to date.');doMerge(id,n);},
+  remote(a){if(a[0]==='add'){const name=a[1],url=a[2];if(!name||!url)return print('usage: git remote add <name> <url>','err');if(name!=='origin')return hint('Por convención usa "origin" como nombre del remoto.');if(S.remote)return print('error: remote origin already exists.','err');S.remote=url;
+      hint(url.includes('gitlab')?'Remoto de GitLab configurado. Ahora: git push -u origin main':url.includes('github')?'Remoto de GitHub configurado. Ahora: git push -u origin main':'Remoto configurado. Ahora: git push -u origin main');return;}
+    if(a[0]==='-v'){if(S.remote)print(`origin  ${S.remote} (fetch)\norigin  ${S.remote} (push)`);return;}
+    if(a[0]==='remove'||a[0]==='rm'){S.remote=null;S.remoteBr={};S.upstream={};return;}
+    if(!a.length){if(S.remote)print('origin');return;}
+    print('Opción de git remote no disponible en el simulador.','err');},
+  push(a){const setU=a.includes('-u')||a.includes('--set-upstream');const pos=a.filter(x=>!x.startsWith('-'));
+    if(!S.remote)return print("fatal: No configured push destination.\nEither specify the URL from the command-line or configure a remote repository using\n\n    git remote add origin <url>",'err');
+    if(pos[0]&&pos[0]!=='origin')return print(`fatal: '${pos[0]}' does not appear to be a git repository`,'err');
+    const br=pos[1]||S.head;
+    if(!pos.length&&!S.upstream[br])return print(`fatal: The current branch ${br} has no upstream branch.\nTo push the current branch and set the remote as upstream, use\n\n    git push --set-upstream origin ${br}`,'err');
+    const l=S.branches[br];if(!l)return print(`error: src refspec ${br} does not match any\nerror: failed to push some refs to '${S.remote}'`,'err');
+    const r=S.remoteBr[br];
+    if(r===l){if(setU)S.upstream[br]=true;return print('Everything up-to-date');}
+    if(r&&!ancestors(l).has(r))return print(`To ${S.remote}\n ! [rejected]        ${br} -> ${br} (fetch first)\nerror: failed to push some refs to '${S.remote}'\nhint: Updates were rejected because the remote contains work that you do not\nhint: have locally. Use 'git pull' before pushing again.`,'err');
+    print('Enumerating objects: done.\nWriting objects: 100%, done.',"dim");
+    if(!r&&br!=='main'){const gl=S.remote.includes('gitlab');const base=S.remote.replace(/\.git$/,'');
+      print(gl?`remote: To create a merge request for ${br}, visit:\nremote:   ${base}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${br}`:`remote: Create a pull request for '${br}' on GitHub by visiting:\nremote:   ${base}/pull/new/${br}`,'dim');}
+    print(`To ${S.remote}`);print(r?`   ${r}..${l}  ${br} -> ${br}`:` * [new branch]      ${br} -> ${br}`,'add');
+    S.remoteBr[br]=l;if(setU){S.upstream[br]=true;print(`branch '${br}' set up to track 'origin/${br}'.`);}},
+  fetch(){if(!S.remote)return print("fatal: 'origin' does not appear to be a git repository",'err');print(`From ${S.remote}`,'dim');hint('Cambios descargados (sin fusionar). git status te dirá si vas por detrás.');},
+  pull(){if(!S.remote)return print("fatal: 'origin' does not appear to be a git repository",'err');const r=S.remoteBr[S.head];
+    if(!r||!S.upstream[S.head])return print(`There is no tracking information for the current branch.\nPlease specify which branch you want to merge with.\n\n    git branch --set-upstream-to=origin/${S.head} ${S.head}\n\n💡 (o haz primero: git push -u origin ${S.head})`,'err');
+    print(`From ${S.remote}\n * branch            ${S.head}     -> FETCH_HEAD`,'dim');doMerge(r,'origin/'+S.head);},
+  rm(a){const f=a.filter(x=>!x.startsWith('-'))[0];if(!f||!has(S.index,f))return print(`fatal: pathspec '${f||''}' did not match any files`,'err');delete S.index[f];delete S.files[f];print(`rm '${f}'`);},
+  help(){shell.help();},
+};
+git.checkout=(a)=>git.switch(a,'checkout');
+
+function run(line){line=line.trim();const pr=$('#sim-prompt').textContent;print(pr+' '+line,'cmd');if(!line)return;
+  if(/^echo\b/.test(line)){echo(line);after();return;}
+  const t=tokenize(line);const c=t[0],a=t.slice(1);
+  try{
+    if(c==='git'){const sub=a[0];if(sub)S.ever[sub]=true;
+      if(!sub)print('usage: git <command> [<args>]','err');
+      else if(!git[sub])print(`git: '${sub}' is not a git command (o no está en el simulador). Escribe help.`,'err');
+      else if(!S.init&&!['init','--version','config','clone','help'].includes(sub)){print('fatal: not a git repository (or any of the parent directories): .git','err');hint('Primero convierte la carpeta en repositorio con: git init');}
+      else git[sub](a.slice(1),sub);}
+    else if(shell[c])shell[c](a);
+    else print(`bash: ${c}: command not found`,'err');
+  }catch(e){print('Error del simulador: '+e.message,'err');}
+  after();}
+
+/* ---------- Missions ---------- */
+const anyOnBranch=()=>Object.values(S.commits).some(c=>c.branch!=='main');
+const merged=()=>{const m=S.branches.main;if(!m)return false;return[...ancestors(m)].some(id=>S.commits[id].parent2||S.commits[id].branch!=='main');};
+const missions=[
+  {t:'Convierte la carpeta en un repositorio',cmds:()=>['git init'],ok:()=>S.init},
+  {t:'Crea un archivo README.md',cmds:()=>['echo "# Mi proyecto" > README.md'],ok:()=>Object.keys(S.files).length>0},
+  {t:'Mira el estado: verás el archivo como "untracked"',cmds:()=>['git status'],ok:()=>S.ever.status&&Object.keys(S.files).length>0},
+  {t:'Pásalo al staging',cmds:()=>['git add README.md'],ok:()=>Object.keys(S.index).length>0||S.seq>0},
+  {t:'Haz tu primer commit',cmds:()=>['git commit -m "Primer commit"'],ok:()=>S.seq>=1},
+  {t:'Modifica el archivo y mira la diferencia',cmds:()=>['echo "Proyecto de prueba" >> README.md','git diff'],ok:()=>S.ever.diff&&S.seq>=1},
+  {t:'Guarda ese cambio en un segundo commit (add + commit)',cmds:()=>['git add .','git commit -m "Añade descripción"'],ok:()=>S.seq>=2},
+  {t:'Crea una rama nueva y cámbiate a ella',cmds:()=>['git switch -c nueva-seccion'],ok:()=>S.head!=='main'||anyOnBranch()},
+  {t:'Haz un commit en esa rama',cmds:()=>['echo "Contenido nuevo" > seccion.txt','git add .','git commit -m "Añade sección"'],ok:()=>anyOnBranch()},
+  {t:'Vuelve a main y fusiona la rama',cmds:()=>['git switch main','git merge nueva-seccion'],ok:()=>merged()},
+  {t:'Conecta con el remoto y sube main',plat:true,cmds:()=>{const p=root.dataset.plat;const r=[];if(p!=='gl')r.push('git remote add origin '+URL_GH);if(p!=='gh')r.push('git remote add origin '+URL_GL);r.push('git push -u origin main');return r;},ok:()=>!!S.remoteBr.main},
+  {t:'Pulsa el botón "compañera", intenta hacer push y luego trae sus cambios con pull',cmds:()=>['git push','git pull'],ok:()=>S.ever.teammate&&S.remoteBr.main&&S.branches.main&&ancestors(S.branches.main).has(S.remoteBr.main)},
+  {t:'⭐ Bonus: provoca un conflicto (misma línea en dos ramas) y resuélvelo',cmds:()=>['git log --oneline --all'],ok:()=>Object.values(S.commits).some(c=>c.conflict)},
+];
+function renderMissions(){const ul=$('#missions');ul.innerHTML='';
+  missions.forEach(m=>{const li=document.createElement('li');if(m.ok())m.was=true;li.className=(m.was?'ok':'');
+    const chk=document.createElement('span');chk.className='chk';chk.textContent=m.was?'✓':'';
+    const t=document.createElement('span');t.className='mt';const tx=document.createElement('span');tx.className='mtx';tx.textContent=m.t;t.append(tx,document.createElement('br'));
+    m.cmds().forEach(cmd=>{const c=document.createElement('code');c.className='chip';c.textContent=cmd;c.title='Toca para escribirlo en la terminal';
+      c.onclick=()=>{inp.value=cmd;if(innerWidth>820)inp.focus();else{inp.scrollIntoView({block:'center',behavior:'smooth'});}};t.append(c,' ');
+      if(m.plat&&cmd.includes('remote add')){const tag=document.createElement('span');tag.className='ptag '+(cmd.includes('gitlab')?'gl':'gh');tag.textContent=cmd.includes('gitlab')?'GitLab':'GitHub';t.append(tag,' ');}});
+    li.append(chk,t);ul.append(li);});}
+
+/* ---------- State panel ---------- */
+function li(html){const l=document.createElement('li');l.innerHTML=html;return l;}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function renderState(){const c=changes();
+  const W=$('#st-work');W.innerHTML='';const fs=keys(S.files);
+  if(!fs.length)W.append(li('<span class="empty">(vacío)</span>'));
+  fs.forEach(f=>{let b='<span class="badge b-ok">✓</span>';if(c.conf.includes(f))b='<span class="badge b-x">!</span>';else if(c.untracked.includes(f))b='<span class="badge b-u">U</span>';else if(c.unstaged.some(x=>x[1]===f))b='<span class="badge b-m">M</span>';else if(!S.init)b='<span class="badge b-u">·</span>';W.append(li(b+' '+esc(f)));});
+  c.unstaged.filter(x=>x[0]==='deleted').forEach(x=>W.append(li('<span class="badge b-x">D</span> <s>'+esc(x[1])+'</s>')));
+  $('#st-branch').innerHTML=S.init?`<span class="tag head">${esc(S.head)}</span>`:'<span class="tag remote">sin Git</span>';
+  const St=$('#st-stage');St.innerHTML='';if(!c.staged.length)St.append(li('<span class="empty">(nada preparado)</span>'));
+  c.staged.forEach(([k,f])=>St.append(li(`<span class="badge b-m">${k==='new file'?'A':k==='deleted'?'D':'M'}</span> ${esc(f)}`)));
+  const R=$('#st-repo');R.innerHTML='';const set=new Set();Object.values(S.branches).forEach(id=>{if(id)ancestors(id).forEach(x=>set.add(x))});
+  const list=[...set].map(id=>S.commits[id]).sort((x,y)=>y.seq-x.seq);
+  if(!S.init)R.append(li('<span class="empty">No es un repositorio (usa git init)</span>'));else if(!list.length)R.append(li('<span class="empty">(sin commits todavía)</span>'));
+  list.slice(0,12).forEach(cm=>{const tags=refs(cm.id).map(r=>`<span class="tag ${r.c}">${esc(r.t)}</span>`).join(' ');R.append(li(`<span style="color:var(--warn)">${cm.id}</span> ${esc(cm.msg.length>34?cm.msg.slice(0,33)+'…':cm.msg)} ${tags}`));});
+  const Rm=$('#st-remote');Rm.innerHTML='';const rn=remoteName();
+  $('#st-plat').innerHTML=rn==='GitLab'?'<span class="ptag gl">GitLab</span>':rn==='GitHub'?'<span class="ptag gh">GitHub</span>':'';
+  if(!S.remote)Rm.append(li('<span class="empty">Sin conectar (git remote add origin …)</span>'));
+  else{const bs=keys(S.remoteBr);if(!bs.length)Rm.append(li('<span class="empty">Conectado, pero vacío (haz git push)</span>'));
+    bs.forEach(b=>{const cm=S.commits[S.remoteBr[b]];Rm.append(li(`<span class="tag remote">${esc(b)}</span> <span style="color:var(--warn)">${cm.id}</span> ${esc(cm.msg.slice(0,30))}`));});}
+  $('#sim-prompt').textContent=S.init?`mi-proyecto (${S.head}${S.merging?'|MERGING':''}) $`:'mi-proyecto $';
+  inp.placeholder=S.init?`(${S.head}) escribe un comando…`:'escribe un comando… (prueba: help)';}
+function after(){renderState();renderMissions();}
+window.__simRender=()=>{if(S)renderMissions();};
+
+/* ---------- Teammate ---------- */
+$('#sim-teammate').onclick=()=>{const r=S.remoteBr.main;
+  if(!r){print('');hint('Primero conecta el remoto y sube main:  git remote add origin '+urlDef()+'  y  git push -u origin main');return;}
+  const T={...tree(r)};T['NOTAS.md']=(T['NOTAS.md']?T['NOTAS.md']+'\n':'')+'Nota de Ana #'+(S.seq+1);
+  const id=hid();S.commits[id]={id,msg:'Añade notas (Ana)',parent:r,parent2:null,tree:T,seq:++S.seq,branch:'main',author:'Ana',time:Date.now()};S.remoteBr.main=id;S.ever.teammate=true;
+  print('');hint(`Ana ha subido un commit a ${remoteName()} (main). Tu repositorio local aún no lo tiene. Prueba git status y luego git pull. Si haces commits antes del pull, git push será rechazado.`);after();
+  if(innerWidth<=640)out.scrollIntoView({block:'center',behavior:'smooth'});};
+$('#sim-reset').onclick=()=>{shell.reset();after();};
+
+/* ---------- Input ---------- */
+const hist=[];let hi=0;
+$('#sim-form').addEventListener('submit',e=>{e.preventDefault();const v=inp.value;inp.value='';if(v.trim())hist.push(v);hi=hist.length;run(v);});
+inp.addEventListener('keydown',e=>{
+  if(e.key==='ArrowUp'){if(hi>0){hi--;inp.value=hist[hi];e.preventDefault();}}
+  else if(e.key==='ArrowDown'){if(hi<hist.length-1){hi++;inp.value=hist[hi];}else{hi=hist.length;inp.value='';}e.preventDefault();}});
+$('#sim-out').addEventListener('click',()=>{if(!window.getSelection().toString()&&innerWidth>820)inp.focus({preventScroll:true});});
+function welcome(){print('Simulador de Git · carpeta: mi-proyecto','yel');print('Escribe  help  para ver los comandos. Empieza por la primera misión:  git init','dim');print('');}
+reset();welcome();after();
+window.__sim={run,get state(){return S}};
+})();
+</script>
+</body>
+</html>
